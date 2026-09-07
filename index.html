@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>🇯🇵 日本关西之旅 2026.09.30</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:#f5f0eb;color:#2c2c2c;font-size:14px;
+  /* 全屏布局，禁止页面滚动 */
+  height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;
+  -webkit-text-size-adjust:100%}
+
+/* ── Header ── */
+.hdr{background:linear-gradient(135deg,#b5191a 0%,#e84042 50%,#c0392b 100%);color:#fff;padding:16px 16px 12px;text-align:center}
+.hdr-en{font-size:10px;letter-spacing:2px;opacity:.8;text-transform:uppercase;margin-bottom:3px}
+.hdr h1{font-size:20px;font-weight:800}
+.hdr-meta{display:flex;justify-content:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.hdr-meta span{font-size:11px;background:rgba(255,255,255,.2);padding:3px 9px;border-radius:20px}
+
+/* ── Next Step Bar ── */
+#next-bar{background:#fff;border-left:4px solid #c0392b;margin:0;padding:10px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.08);min-height:52px}
+#next-bar.green{border-left-color:#27ae60}
+#next-bar.blue{border-left-color:#2980b9}
+#next-bar.grey{border-left-color:#95a5a6}
+.nb-icon{font-size:22px;flex-shrink:0;margin-top:1px}
+.nb-body{flex:1;min-width:0}
+.nb-label{font-size:10px;color:#999;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px}
+.nb-main{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3}
+.nb-sub{font-size:11px;color:#888;margin-top:2px;line-height:1.4}
+
+/* ── Tabs ── */
+.tabs{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #eee;scrollbar-width:none;position:sticky;top:0;z-index:200;box-shadow:0 2px 6px rgba(0,0,0,.07)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:9px 13px;font-size:11px;font-weight:600;color:#999;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;text-align:center;transition:all .2s;line-height:1.3}
+.tab.on{color:#c0392b;border-bottom-color:#c0392b}
+
+/* ── Day sections ── */
+.day{display:none}.day.on{display:block}
+
+/* ── Day Header ── */
+.day-hdr{background:#fff;padding:13px 16px;border-bottom:1px solid #f0ebe6}
+.d-date{font-size:11px;color:#e74c3c;font-weight:700;letter-spacing:.5px}
+.d-title{font-size:20px;font-weight:800;margin:3px 0}
+.d-sub{font-size:12px;color:#999}
+.d-cities{margin-top:7px;display:flex;gap:6px;flex-wrap:wrap}
+.d-city{background:#fef3f2;color:#c0392b;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+
+/* ── Map ── */
+.leaflet-container{font-size:12px}
+
+/* ══ SPLIT LAYOUT ══ */
+#top-bar{flex-shrink:0}
+#content{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.day{display:none;flex:1;min-height:0;overflow:hidden}
+.day.on{display:flex}
+/* overview & edit = vertical scroll */
+#d0.on{flex-direction:column;overflow-y:auto}
+/* day pages = left/right split */
+.day-map-side{width:42%;flex-shrink:0;display:flex;flex-direction:column;position:relative;background:#e8e0d8;min-height:0}
+/* 地图画布用 flex:1 填满，不用 position:absolute（移动端兼容性更好）*/
+.day-map-side .map-canvas{flex:1;min-height:0;width:100%}
+.map-day-badge{position:absolute;bottom:10px;left:8px;right:8px;background:rgba(255,255,255,.88);backdrop-filter:blur(4px);border-radius:10px;padding:7px 10px;z-index:400;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.map-day-badge .mdb-date{font-size:10px;color:#c0392b;font-weight:700;letter-spacing:.5px}
+.map-day-badge .mdb-title{font-size:13px;font-weight:800;color:#1a1a1a;line-height:1.3}
+.map-day-badge .mdb-cities{display:flex;gap:5px;margin-top:4px;flex-wrap:wrap}
+.map-day-badge .mdb-city{background:#fef3f2;color:#c0392b;padding:2px 7px;border-radius:12px;font-size:10px;font-weight:600}
+/* resize handle */
+.resize-handle{width:5px;background:#e8e0d8;cursor:col-resize;flex-shrink:0;position:relative;transition:background .2s}
+.resize-handle:hover,.resize-handle.dragging{background:#c0392b}
+.resize-handle::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:30px;background:rgba(0,0,0,.15);border-radius:2px}
+/* right scrollable panel */
+.day-right-side{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-width:0}
+
+/* ── Timeline ── */
+.tl{padding:12px 16px 8px}
+.tl-item{display:flex;gap:10px;margin-bottom:11px}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:34px;flex-shrink:0}
+.tl-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.tl-line{width:2px;flex:1;background:#e8e0d8;margin-top:3px;min-height:10px}
+.tl-card{flex:1;background:#fff;border-radius:11px;padding:10px 12px;box-shadow:0 1px 4px rgba(0,0,0,.06);min-width:0}
+.tl-time{font-size:11px;color:#e74c3c;font-weight:700;margin-bottom:2px}
+.tl-name{font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.3;margin-bottom:2px}
+.tl-note{font-size:12px;color:#777;line-height:1.5;white-space:pre-line}
+.tl-tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;margin:3px 3px 0 0}
+.tg-tr{background:#ebf5fb;color:#2980b9}
+.tg-fd{background:#eafaf1;color:#27ae60}
+.tg-sc{background:#fef9e7;color:#d68910}
+.tg-ht{background:#f5eef8;color:#8e44ad}
+.tg-fw{background:#fef0e7;color:#e67e22}
+
+/* ── Overview ── */
+.ov-card{margin:10px 16px;background:#fff;border-radius:13px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.ov-row{display:flex;align-items:center;padding:11px 13px;border-bottom:1px solid #f5f0eb;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ov-row:last-child{border-bottom:none}
+.ov-day{width:36px;height:36px;border-radius:9px;background:#c0392b;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;font-weight:800;font-size:10px;line-height:1.2}
+.ov-info{flex:1;margin-left:11px}
+.ov-title{font-size:14px;font-weight:700;color:#1a1a1a}
+.ov-sub{font-size:11px;color:#999;margin-top:1px}
+.ov-arrow{color:#ccc;font-size:18px;margin-left:6px}
+.sec-lbl{padding:10px 16px 2px;font-size:10px;font-weight:700;color:#bbb;letter-spacing:1px;text-transform:uppercase}
+
+/* ══════ CHECKLIST ══════ */
+#checklist-page{display:none;height:100%;overflow-y:auto;width:100%;background:#f5f0eb}
+.cl-hdr{background:linear-gradient(135deg,#1a5276,#2980b9);color:#fff;padding:14px 16px}
+.cl-hdr h2{font-size:16px;font-weight:800}
+.cl-hdr p{font-size:11px;opacity:.75;margin-top:2px}
+.cl-progress{padding:12px 16px;background:#fff;display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee}
+.cl-prog-bar{flex:1;height:8px;background:#e8e0d8;border-radius:4px;overflow:hidden}
+.cl-prog-fill{height:100%;background:#27ae60;border-radius:4px;transition:width .4s}
+.cl-prog-txt{font-size:12px;font-weight:700;color:#27ae60;white-space:nowrap}
+.cl-cat{margin:10px 14px 0}
+.cl-cat-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#fff;border-radius:12px 12px 0 0;border-bottom:1px solid #f0ebe6}
+.cl-cat-name{font-size:13px;font-weight:800;color:#1a1a1a;display:flex;align-items:center;gap:6px}
+.cl-cat-count{font-size:11px;color:#999;font-weight:400}
+.cl-cat-add{font-size:11px;color:#2980b9;font-weight:700;padding:4px 8px;background:#ebf5fb;border-radius:8px;cursor:pointer;border:none;font-family:inherit}
+.cl-items{background:#fff;border-radius:0 0 12px 12px;overflow:hidden}
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-top:1px solid #f5f0eb;position:relative}
+.cl-item:first-child{border-top:none}
+.cl-item.done .cl-item-text{text-decoration:line-through;color:#bbb}
+.cl-check{width:22px;height:22px;border-radius:6px;border:2px solid #ddd;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;background:#fff}
+.cl-check.checked{background:#27ae60;border-color:#27ae60;color:#fff}
+.cl-item-body{flex:1;min-width:0}
+.cl-item-text{font-size:13px;color:#1a1a1a;line-height:1.45;word-break:break-all}
+.cl-item-sub{font-size:11px;color:#aaa;margin-top:2px}
+.cl-del{background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:2px 4px;flex-shrink:0;margin-top:1px}
+.cl-del:active{color:#e74c3c}
+.cl-add-cat{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 14px 20px;padding:13px;background:#fff;border:2px dashed #d0c8c0;border-radius:12px;color:#2980b9;font-weight:700;font-size:13px;cursor:pointer}
+/* inline edit */
+.cl-item-input{font-size:13px;color:#1a1a1a;border:none;outline:none;background:transparent;width:100%;font-family:inherit;line-height:1.45}
+
+/* ══════ PIN MODAL ══════ */
+.pin-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:950;display:flex;align-items:center;justify-content:center;padding:20px}
+.pin-box{background:#fff;border-radius:20px;padding:24px 20px;width:100%;max-width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.pin-box h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.pin-box p{font-size:12px;color:#999;margin-bottom:18px;line-height:1.5}
+.pin-dots{display:flex;justify-content:center;gap:12px;margin-bottom:20px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #ddd;transition:all .15s}
+.pin-dot.filled{background:#c0392b;border-color:#c0392b}
+.pin-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pin-key{padding:14px;border-radius:12px;background:#f5f0eb;font-size:20px;font-weight:700;cursor:pointer;border:none;font-family:inherit;color:#1a1a1a;-webkit-tap-highlight-color:transparent;transition:background .1s}
+.pin-key:active{background:#e0d8d0}
+.pin-key.del{font-size:16px;color:#999}
+.pin-key.ok{background:#c0392b;color:#fff;grid-column:1/-1;padding:14px;font-size:14px}
+.pin-err{color:#e74c3c;font-size:12px;font-weight:600;height:16px;margin-bottom:6px}
+.pin-cancel{font-size:13px;color:#999;cursor:pointer;padding:6px}
+
+/* ══════ EDIT PAGE ══════ */
+#edit-page{display:none;height:100%;overflow-y:auto;flex-shrink:0;width:100%}
+.edit-hdr{background:#2c3e50;color:#fff;padding:13px 16px}
+.edit-hdr h2{font-size:16px;font-weight:700}
+.edit-hdr p{font-size:11px;opacity:.7;margin-top:2px}
+.edit-day-tabs{display:flex;overflow-x:auto;background:#34495e;scrollbar-width:none;gap:0}
+.edit-day-tabs::-webkit-scrollbar{display:none}
+.edt{flex-shrink:0;padding:8px 12px;font-size:11px;font-weight:600;color:rgba(255,255,255,.5);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.edt.on{color:#fff;border-bottom-color:#e74c3c}
+.edit-day-content{display:none}.edit-day-content.on{display:block}
+.edit-act{background:#fff;margin:10px 14px;border-radius:12px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.07);position:relative}
+.edit-act-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.edit-icon-sel{font-size:20px;cursor:pointer;min-width:28px}
+.edit-fields{display:flex;flex-direction:column;gap:7px}
+.edit-row{display:flex;align-items:center;gap:8px}
+.edit-lbl{font-size:10px;color:#999;font-weight:700;letter-spacing:.5px;width:28px;flex-shrink:0;text-align:right}
+.edit-input{flex:1;border:1px solid #e8e0d8;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;color:#1a1a1a;background:#fafafa;outline:none;transition:border .2s}
+.edit-input:focus{border-color:#c0392b;background:#fff}
+.edit-textarea{resize:vertical;min-height:52px;line-height:1.5}
+.edit-tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.edit-tag-opt{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .2s}
+.edit-tag-opt.sel{border-color:#c0392b}
+.del-btn{position:absolute;top:10px;right:10px;background:none;border:none;font-size:18px;color:#ccc;cursor:pointer;padding:4px;line-height:1}
+.del-btn:active{color:#e74c3c}
+.add-act-btn{display:flex;align-items:center;justify-content:center;gap:8px;margin:8px 14px;padding:13px;background:#fff;border:2px dashed #e0d8d0;border-radius:12px;color:#c0392b;font-weight:700;font-size:14px;cursor:pointer}
+.edit-actions{padding:12px 14px;display:flex;gap:10px}
+.save-btn{flex:1;background:#c0392b;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer}
+.reset-btn{background:#fff;color:#e74c3c;border:2px solid #e74c3c;border-radius:10px;padding:13px 16px;font-size:13px;font-weight:700;cursor:pointer}
+.save-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#27ae60;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+
+/* ══ GITHUB SYNC ══ */
+.sync-bar{background:#f8f4f0;border-bottom:1px solid #eee;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sync-status{font-size:12px;font-weight:600;color:#999;flex:1}
+.sync-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:#2980b9;color:#fff;transition:opacity .2s}
+.sync-btn:active{opacity:.7}
+.sync-btn.setup{background:#fff;color:#2980b9;border:1.5px solid #2980b9}
+/* GitHub 配置弹窗 */
+.gh-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:960;display:flex;align-items:flex-end;justify-content:center}
+.gh-sheet{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:20px 18px 32px;box-shadow:0 -4px 24px rgba(0,0,0,.15)}
+.gh-sheet h3{font-size:17px;font-weight:800;margin-bottom:6px}
+.gh-sheet p{font-size:12px;color:#888;line-height:1.6;margin-bottom:16px}
+.gh-field{margin-bottom:12px}
+.gh-field label{display:block;font-size:11px;font-weight:700;color:#666;margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.gh-field input{width:100%;border:1.5px solid #e0d8d0;border-radius:10px;padding:10px 12px;font-size:13px;font-family:inherit;outline:none;transition:border .2s}
+.gh-field input:focus{border-color:#2980b9}
+.gh-tip{font-size:11px;color:#aaa;margin-top:4px;line-height:1.5}
+.gh-actions{display:flex;gap:10px;margin-top:16px}
+.gh-save{flex:1;background:#2980b9;color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.gh-cancel{background:#fff;color:#999;border:1.5px solid #ddd;border-radius:10px;padding:13px 16px;font-size:13px;cursor:pointer;font-family:inherit}
+.gh-test-msg{font-size:12px;margin-top:8px;min-height:18px;font-weight:600}
+
+/* ══ TIMETABLE ══ */
+.tt-btn{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:4px 10px;background:#eaf2fb;color:#2980b9;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.tt-btn:active{background:#d4e9f7}
+.tt-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:900;opacity:0;pointer-events:none;transition:opacity .25s}
+.tt-overlay.on{opacity:1;pointer-events:all}
+.tt-sheet{position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:901;max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,1.5,.5,1)}
+.tt-sheet.on{transform:translateY(0)}
+.tt-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 0}
+.tt-sh-hdr{padding:14px 18px 10px;border-bottom:1px solid #f0ebe6}
+.tt-sh-title{font-size:16px;font-weight:800;color:#1a1a1a}
+.tt-sh-sub{font-size:12px;color:#999;margin-top:2px}
+.tt-seg{padding:14px 18px;border-bottom:1px solid #f5f0eb}
+.tt-seg:last-child{border-bottom:none;padding-bottom:20px}
+.tt-seg-hdr{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.tt-line-badge{background:#1a5276;color:#fff;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700}
+.tt-route{font-size:13px;color:#444;font-weight:600}
+.tt-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tt-meta span{font-size:11px;background:#f0ebe6;padding:3px 9px;border-radius:20px;color:#555}
+.tt-meta .tm-fare{background:#fef3f2;color:#c0392b}
+.tt-note{font-size:11px;color:#888;margin-bottom:10px;line-height:1.5;background:#fffbf5;padding:7px 10px;border-radius:8px;border-left:3px solid #f39c12}
+.tt-times-lbl{font-size:10px;color:#999;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.tt-times{display:flex;flex-wrap:wrap;gap:6px}
+.tt-time-chip{padding:5px 11px;border-radius:20px;font-size:13px;font-weight:700;background:#f5f0eb;color:#333;border:2px solid transparent}
+.tt-time-chip.near{background:#eaf2fb;color:#2980b9;border-color:#aed6f1}
+.tt-time-chip.plan{background:#c0392b;color:#fff;border-color:#c0392b}
+</style>
+</head>
+<body>
+
+<div id="top-bar">
+<!-- ── HEADER ── -->
+<div class="hdr">
+  <div class="hdr-en" id="hdr-en">KANSAI · WAKAYAMA · KOBE</div>
+  <h1 id="hdr-h1">🇯🇵 日本关西之旅</h1>
+  <div class="hdr-meta" id="hdr-meta">
+    <span>📅 9/30 – 10/7</span><span>🗓 8天7夜</span><span>✈️ 吉祥航空</span>
+  </div>
+</div>
+
+<!-- ── NEXT STEP BAR ── -->
+<div id="next-bar">
+  <div class="nb-icon" id="nb-icon">⏳</div>
+  <div class="nb-body">
+    <div class="nb-label" id="nb-label">行程提示</div>
+    <div class="nb-main" id="nb-main">计算中...</div>
+    <div class="nb-sub"  id="nb-sub"></div>
+  </div>
+</div>
+
+<!-- ── TABS (rebuilt by buildPageStructure) ── -->
+<div class="tabs" id="tabs"></div>
+
+</div><!-- /top-bar -->
+<div id="content">
+<!-- ── DAY CONTAINERS (rebuilt by buildPageStructure) ── -->
+
+<!-- ── CHECKLIST PAGE ── -->
+<div id="checklist-page"></div>
+
+<!-- ── EDIT PAGE ── -->
+<div id="edit-page">
+  <div class="edit-hdr">
+    <h2>✏️ 行程调整</h2>
+    <p>修改后保存并同步至云端，所有设备可见</p>
+  </div>
+  <!-- 云同步状态栏 -->
+  <div class="sync-bar">
+    <div class="sync-status" id="sync-status">☁️ 检测同步配置...</div>
+    <button class="sync-btn setup" id="sync-setup-btn" onclick="openGHSetup()">⚙️ 配置</button>
+  </div>
+  <div class="edit-day-tabs" id="edit-day-tabs"></div>
+  <div id="edit-day-contents"></div>
+  <div class="edit-actions">
+    <button class="save-btn" onclick="saveAllEdits()">💾 保存并同步云端</button>
+    <button class="reset-btn" onclick="resetData()">↩ 恢复默认</button>
+  </div>
+</div>
+
+</div><!-- /content -->
+<div class="save-toast" id="save-toast">✓ 已保存</div>
+
+<!-- ── GITHUB SETUP MODAL ── -->
+<div class="gh-overlay" id="gh-overlay" style="display:none" onclick="if(event.target===this)closeGHSetup()">
+  <div class="gh-sheet">
+    <h3>☁️ 云端同步配置</h3>
+    <p>填写 GitHub 仓库信息后，保存的行程将自动提交到仓库，所有人刷新页面即可看到最新内容。</p>
+    <div class="gh-field">
+      <label>仓库拥有者 (Owner)</label>
+      <input id="gh-owner" placeholder="例: sj17623885225-blip" autocomplete="off" autocorrect="off"/>
+    </div>
+    <div class="gh-field">
+      <label>仓库名称 (Repo)</label>
+      <input id="gh-repo" placeholder="例: tripgogo" autocomplete="off" autocorrect="off"/>
+    </div>
+    <div class="gh-field">
+      <label>Personal Access Token (PAT)</label>
+      <input id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off"/>
+      <div class="gh-tip">
+        在 GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)<br>
+        → Generate new token → 勾选 <b>public_repo</b> 权限即可
+      </div>
+    </div>
+    <div class="gh-test-msg" id="gh-test-msg"></div>
+    <div class="gh-actions">
+      <button class="gh-cancel" onclick="closeGHSetup()">取消</button>
+      <button class="gh-save" onclick="testAndSaveGH()">🔗 验证并保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PIN MODAL ── -->
+<div class="pin-overlay" id="pin-overlay" style="display:none">
+  <div class="pin-box">
+    <h3 id="pin-title">🔒 编辑验证</h3>
+    <p id="pin-desc">输入4位密码以进入编辑模式</p>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key del" onclick="pinDel()">⌫</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key ok" onclick="pinConfirm()" id="pin-ok-btn">确认</button>
+    </div>
+    <div class="pin-cancel" onclick="pinCancel()">取消</div>
+  </div>
+</div>
+
+<!-- ── TIMETABLE MODAL ── -->
+<div class="tt-overlay" id="tt-overlay" onclick="closeTT()"></div>
+<div class="tt-sheet" id="tt-sheet">
+  <div class="tt-handle"></div>
+  <div class="tt-sh-hdr">
+    <div class="tt-sh-title" id="tt-title">列车时刻表</div>
+    <div class="tt-sh-sub" id="tt-sub"></div>
+  </div>
+  <div id="tt-body"></div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════
+const DEFAULT = [
+  {date:'2026-09-30',title:'鸭川夜色',emoji:'🌙',sub:'HO1505 · 上海浦东 → 关西 → 京都',cities:['上海','关西机场','京都'],
+   map:{c:[34.98,135.74],z:12,pts:[
+    {lat:34.4347,lng:135.2440,icon:'✈️',lb:'关西机场'},
+    {lat:34.9858,lng:135.7588,icon:'🚄',lb:'京都站'},
+    {lat:35.0036,lng:135.7676,icon:'🏨',lb:'四条河原町'},
+    {lat:35.0042,lng:135.7653,icon:'🛒',lb:'锦市场'},
+    {lat:35.0036,lng:135.7740,icon:'🌊',lb:'鸭川'}]},
+   acts:[
+    {time:'08:20',name:'出发 · 上海浦东T2',note:'HO1505 吉祥航空\n08:20起飞 → 11:40抵达关西',tag:'tr',icon:'✈️'},
+    {time:'14:00',name:'关西机场 → 京都站',note:'JR特急 HARUKA 约80分钟',tag:'tr',icon:'🚄',
+     tt:{title:'特急HARUKA 関西空港→京都',sub:'建议乘13:46或14:16班次，约75分抵京都',segs:[
+       {line:'特急HARUKA',from:'関西空港',to:'京都',dur:'約75分',fare:'2,910円（自由席）',
+        note:'自由席无需预约；指定席旺季务必提前在JR官网购买',planTime:'14:16',
+        deps:['11:16','11:46','12:16','12:46','13:16','13:46','14:16','14:46','15:16','15:46','16:16','16:46']}]}},
+    {time:'15:45',name:'京都站 → 酒店（四条区域）',note:'市巴士 4/17/205 → 四条河原町',tag:'ht',icon:'🏨'},
+    {time:'16:30',name:'酒店 → 锦市场',note:'步行约6分钟 · 京都厨房',tag:'sc',icon:'🛒'},
+    {time:'18:00',name:'晚餐',note:'四条河原町或先斗町一带',tag:'fd',icon:'🍜'},
+    {time:'19:30',name:'鸭川纳凉床 / 鸭川散步',note:'步行1分钟 · 夜晚漫步鸭川河畔',tag:'sc',icon:'🌊'}]},
+
+  {date:'2026-10-01',title:'贵船·鞍马森林徒步',emoji:'🌲',sub:'叡山电铁 · 森林徒步约2.5km',cities:['京都','鞍马','贵船'],
+   map:{c:[35.08,135.77],z:12,pts:[
+    {lat:35.0382,lng:135.7737,icon:'🚃',lb:'出町柳站'},
+    {lat:35.1132,lng:135.7706,icon:'🚋',lb:'鞍马站'},
+    {lat:35.1133,lng:135.7708,icon:'⛩️',lb:'鞍马寺'},
+    {lat:35.1248,lng:135.7681,icon:'🌊',lb:'贵船神社'}]},
+   acts:[
+    {time:'09:30',name:'酒店 → 出町柳站',note:'步行 + 京阪本线',tag:'tr',icon:'🚃',
+     tt:{title:'京阪本线 祇園四条→出町柳',sub:'约5分钟，频率极高',segs:[
+       {line:'京阪本線',from:'祇園四条',to:'出町柳',dur:'約5分',fare:'200円（IC可用）',
+        note:'急行/特急均停，月台在地下，几乎5分一班',planTime:'09:35',
+        deps:['09:00','09:05','09:10','09:15','09:20','09:25','09:30','09:35','09:40','09:45','09:50','09:55','10:00']}]}},
+    {time:'10:00',name:'出町柳 → 鞍马站',note:'叡山电铁鞍马线 · 右侧可见红叶隧道',tag:'tr',icon:'🚋',
+     tt:{title:'叡山電鉄 鞍馬線 出町柳→鞍馬',sub:'约31分，注意右侧红叶隧道',segs:[
+       {line:'叡山電鉄 鞍馬線',from:'出町柳',to:'鞍馬',dur:'約31分',fare:'570円（IC可用）',
+        note:'单节小火车，过市原站后进入红叶隧道，务必坐右侧座位',planTime:'10:00',
+        deps:['08:53','09:23','09:53','10:23','10:53','11:23','11:53','12:23','12:53']}]}},
+    {time:'10:35',name:'鞍马寺',note:'缆车（普明殿→多宝塔）+ 步行参拜',tag:'sc',icon:'⛩️'},
+    {time:'11:35',name:'鞍马 → 贵船 · 森林徒步',note:'约2.5km轻松步道 · 林间溪谷风光',tag:'sc',icon:'🥾'},
+    {time:'13:00',name:'贵船神社 + 水占卜',note:'将签放入溪水中，字迹浮现',tag:'sc',icon:'🌊'},
+    {time:'13:30',name:'贵船川床午餐',note:'溪边料理 · 夏季限定川床',tag:'fd',icon:'🍱'},
+    {time:'16:00',name:'返回酒店休息',note:'原路乘叡山电铁返回',tag:'ht',icon:'🏨'}]},
+
+  {date:'2026-10-02',title:'岚山·竹林·苔庭',emoji:'🎋',sub:'阪急电铁 · 岚山全日游',cities:['岚山','天龙寺','祇王寺'],
+   map:{c:[35.013,135.677],z:14,pts:[
+    {lat:35.0170,lng:135.6727,icon:'🎋',lb:'岚山竹林小径'},
+    {lat:35.0169,lng:135.6750,icon:'⛩️',lb:'天龙寺'},
+    {lat:35.0245,lng:135.6765,icon:'🌿',lb:'祇王寺'},
+    {lat:35.0130,lng:135.6783,icon:'🌉',lb:'渡月桥'}]},
+   acts:[
+    {time:'09:30',name:'酒店 → 岚山',note:'步行→阪急京都河原町站→桂→岚山约25min',tag:'tr',icon:'🚃',
+     tt:{title:'阪急 京都河原町→嵐山',sub:'在桂站换乘嵐山線，全程约25分',segs:[
+       {line:'阪急 京都本線',from:'京都河原町',to:'桂',dur:'約13分',fare:'200円（IC可用）',
+        note:'急行/特急均停桂站，频率极高，约3-5分一班',planTime:'09:40',
+        deps:['09:20','09:25','09:30','09:35','09:40','09:45','09:50','09:55','10:00','10:05','10:10']},
+       {line:'阪急 嵐山線',from:'桂',to:'嵐山',dur:'約9分',fare:'含上段合計200円',
+        note:'桂站换乘后乘嵐山線，约每10分一班；到站后步行15min可至竹林',planTime:'09:58',
+        deps:['09:40','09:50','10:00','10:10','10:20','10:30','10:40','10:50','11:00','11:10']}]}},
+    {time:'10:15',name:'岚山竹林小径',note:'从阪急站步行约15min · 晨光最美',tag:'sc',icon:'🎋'},
+    {time:'11:00',name:'天龙寺庭园',note:'世界遗产 · 曹源池庭园',tag:'sc',icon:'⛩️'},
+    {time:'12:00',name:'岚山午餐',note:'岚山商业街 · 豆腐料理 / 汤豆腐',tag:'fd',icon:'🍣'},
+    {time:'13:30',name:'祇王寺',note:'苔藓庭园 · 步行约15min',tag:'sc',icon:'🌿'},
+    {time:'14:30',name:'渡月桥 · 茶屋休息',note:'眺望保津川 · 岚山标志景观',tag:'sc',icon:'🌉'},
+    {time:'16:00',name:'返回酒店',note:'阪急原路返回京都',tag:'ht',icon:'🏨'}]},
+
+  {date:'2026-10-03',title:'田辺花火大会',emoji:'🎆',sub:'JR特急くろしお · 第56回田辺花火',cities:['京都','田辺','扇ヶ浜'],
+   map:{c:[33.82,135.40],z:9,pts:[
+    {lat:34.9858,lng:135.7588,icon:'🚄',lb:'京都站'},
+    {lat:33.7338,lng:135.3741,icon:'🏨',lb:'田辺市'},
+    {lat:33.7290,lng:135.3821,icon:'🎆',lb:'扇ヶ浜（花火会场）'}]},
+   acts:[
+    {time:'09:30',name:'整理行李 · 宅急便寄送',note:'行李寄到白滨酒店，轻装出发',tag:'tr',icon:'📦'},
+    {time:'11:00',name:'京都自由活动',note:'周边商店 · 伴手礼采购',tag:'sc',icon:'🏙️'},
+    {time:'12:00',name:'京都站便当午餐',note:'购买各类京都特色站便当',tag:'fd',icon:'🍱'},
+    {time:'13:00',name:'京都站 → 田辺站',note:'JR特急 くろしお 约3.5小时',tag:'tr',icon:'🚄',
+     tt:{title:'特急くろしお 京都→紀伊田辺',sub:'班次较少，务必提前预订指定席',segs:[
+       {line:'特急 くろしお',from:'京都',to:'紀伊田辺',dur:'約3時間30分',fare:'6,050円（乗車券4,070円+特急料金1,980円）',
+        note:'⚠️ 班次有限，强烈建议提前在JR西日本官网/みどりの窓口购买指定席；花火日人多，早预订',planTime:'13:05',
+        deps:['09:05','10:05','11:05','12:05','13:05','14:05','15:05']}]}},
+    {time:'16:30',name:'田辺酒店 check-in · 休息',note:'休整后准备花火大会',tag:'ht',icon:'🏨'},
+    {time:'18:30',name:'扇ヶ浜海滩占位',note:'步行前往 · 提前占好观看位置',tag:'sc',icon:'🏖️'},
+    {time:'20:00',name:'第56回 田辺花火大会',note:'扇ヶ浜海滩 · 海上烟花 约20分钟',tag:'fw',icon:'🎆'}]},
+
+  {date:'2026-10-04',title:'白滨溜达',emoji:'🌊',sub:'断崖 · 沙滩 · 温泉',cities:['田辺','白滨','白良浜'],
+   map:{c:[33.686,135.352],z:14,pts:[
+    {lat:33.6849,lng:135.3527,icon:'🪨',lb:'千畳敷'},
+    {lat:33.6822,lng:135.3508,icon:'🏔️',lb:'三段壁'},
+    {lat:33.6924,lng:135.3534,icon:'🏖️',lb:'白良浜'},
+    {lat:33.6850,lng:135.3490,icon:'♨️',lb:'白滨温泉'}]},
+   acts:[
+    {time:'09:30',name:'田辺 → 白滨',note:'约1小时',tag:'tr',icon:'🚌',
+     tt:{title:'JR紀勢本線 紀伊田辺→白浜',sub:'约20分，IC可用',segs:[
+       {line:'JR 紀勢本線',from:'紀伊田辺',to:'白浜',dur:'約20分',fare:'340円（IC可用）',
+        note:'普通·快速均可，班次较充裕；也可乘くろしお特急（+特急料金）更快',planTime:'09:44',
+        deps:['08:55','09:44','10:22','10:55','11:33','12:06','12:53','13:26']}]}},
+    {time:'10:30',name:'千畳敷',note:'海蚀岩盘 · 绵延平坦的岩石群',tag:'sc',icon:'🪨'},
+    {time:'11:30',name:'三段壁',note:'断崖绝壁 · 洞窟探险 · 36m悬崖',tag:'sc',icon:'🏔️'},
+    {time:'12:30',name:'白滨午餐 · 海鲜',note:'新鲜海产 · 海胆·伊势龙虾',tag:'fd',icon:'🦞'},
+    {time:'13:30',name:'白良浜沙滩',note:'白色细沙海滩 · 自由活动',tag:'sc',icon:'🏖️'},
+    {time:'16:00',name:'白滨温泉旅馆 check-in',note:'白浜奇特莱斯希莫尔酒店 · 温泉浴',tag:'ht',icon:'♨️'}]},
+
+  {date:'2026-10-05',title:'和歌山溜达',emoji:'🐟',sub:'金枪鱼解体秀 · 和歌山城',cities:['白滨','黑潮市场','和歌山城'],
+   map:{c:[34.228,135.172],z:13,pts:[
+    {lat:34.2305,lng:135.1765,icon:'🐟',lb:'黑潮市场'},
+    {lat:34.2257,lng:135.1671,icon:'🏯',lb:'和歌山城'}]},
+   acts:[
+    {time:'09:30',name:'白滨 → 和歌山（黑潮市场）',note:'约1.5小时',tag:'tr',icon:'🚌',
+     tt:{title:'白浜→和歌山',sub:'建议乘特急くろしお缩短至50分',segs:[
+       {line:'特急 くろしお（推荐）',from:'白浜',to:'和歌山',dur:'約50分',fare:'2,640円（乗車券960円+特急料金1,680円）',
+        note:'推荐乘特急节省时间；IC乗車券可用，特急券需另购',planTime:'09:44',
+        deps:['07:35','09:44','10:39','11:44','12:44']},
+       {line:'普通/快速（省钱）',from:'白浜',to:'和歌山',dur:'約1時間40分',fare:'960円（IC可用）',
+        note:'省钱选项，班次少，建议查询时刻表后出发',planTime:'09:30',
+        deps:['07:14','09:30','11:15','12:55']}]}},
+    {time:'12:30',name:'黑潮市场 · 金枪鱼解体秀',note:'巨型金枪鱼现场解体 · 每日定时表演',tag:'sc',icon:'🐟'},
+    {time:'13:00',name:'市场内午餐',note:'超新鲜金枪鱼刺身丼',tag:'fd',icon:'🍣'},
+    {time:'14:30',name:'和歌山城',note:'市场→城约30min · 天守阁登顶俯瞰',tag:'sc',icon:'🏯'},
+    {time:'16:00',name:'和歌山市区自由活动',note:'商店街闲逛',tag:'sc',icon:'🛍️'},
+    {time:'18:00',name:'晚餐',note:'和歌山拉面 / 当地料理',tag:'fd',icon:'🍜'}]},
+
+  {date:'2026-10-06',title:'神户溜达',emoji:'🥩',sub:'神户牛 · 异人馆 · 六甲山夜景',cities:['和歌山','神户三宫','六甲山'],
+   map:{c:[34.72,135.20],z:12,pts:[
+    {lat:34.6913,lng:135.1956,icon:'🥩',lb:'神户三宫'},
+    {lat:34.6977,lng:135.1877,icon:'🏘️',lb:'北野异人馆'},
+    {lat:34.6907,lng:135.1896,icon:'🧧',lb:'南京町'},
+    {lat:34.7671,lng:135.2407,icon:'🌃',lb:'六甲山顶'}]},
+   acts:[
+    {time:'09:30',name:'和歌山 → 神户三宫',note:'约2小时',tag:'tr',icon:'🚄',
+     tt:{title:'和歌山→神戸三ノ宮',sub:'经大阪天王寺转乘，全程约2小时',segs:[
+       {line:'JR 阪和線（快速）',from:'和歌山',to:'天王寺（大阪）',dur:'約1時間',fare:'1,100円（IC可用）',
+        note:'在天王寺下车，换乘JR神戸線新快速；或乘くろしお特急直达大阪再转乘',planTime:'09:44',
+        deps:['09:00','09:16','09:30','09:44','10:00','10:16','10:30','10:44','11:00']},
+       {line:'JR 神戸線 新快速',from:'大阪',to:'三ノ宮',dur:'約22分',fare:'含上段合計約1,520円',
+        note:'新快速停三ノ宮，几乎每10分一班；从天王寺换乘时注意月台方向',planTime:'10:48',
+        deps:['10:08','10:18','10:28','10:38','10:48','10:58','11:08','11:18','11:28']}]}},
+    {time:'12:00',name:'神户牛午餐',note:'三宫周边神户牛专门店 · 铁板烧',tag:'fd',icon:'🥩'},
+    {time:'13:30',name:'北野异人馆街',note:'明治时代西洋建筑群 · 风见鸡馆',tag:'sc',icon:'🏘️'},
+    {time:'15:30',name:'元町 · 南京町闲逛',note:'神户中华街 · 肉包子必吃',tag:'sc',icon:'🧧'},
+    {time:'17:30',name:'前往六甲山',note:'阪急六甲站→六甲缆车 约40min',tag:'tr',icon:'🚠'},
+    {time:'18:10',name:'六甲山顶夜景',note:'日本三大夜景 · 神户全景',tag:'sc',icon:'🌃'}]},
+
+  {date:'2026-10-07',title:'大阪购物→回国',emoji:'🛍',sub:'HO1338 · 22:25 关西机场起飞',cities:['神户','大阪','关西机场'],
+   map:{c:[34.55,135.40],z:10,pts:[
+    {lat:34.6913,lng:135.1956,icon:'🚃',lb:'神户三宫'},
+    {lat:34.6726,lng:135.5001,icon:'🛍️',lb:'大阪心斋桥'},
+    {lat:34.6687,lng:135.5015,icon:'🍜',lb:'道顿堀'},
+    {lat:34.4347,lng:135.2440,icon:'✈️',lb:'关西机场'}]},
+   acts:[
+    {time:'09:30',name:'神户三宫 → 大阪',note:'阪急或JR · 约30分钟',tag:'tr',icon:'🚃',
+     tt:{title:'神戸三ノ宮→大阪',sub:'阪急梅田/JR大阪均可，约25-30分',segs:[
+       {line:'阪急 神戸線（推荐）',from:'神戸三宮',to:'梅田（大阪）',dur:'約28分',fare:'320円（IC可用）',
+        note:'推荐阪急，站台直达大阪梅田，购物方便；特急停三宮和梅田',planTime:'09:32',
+        deps:['09:00','09:08','09:16','09:24','09:32','09:40','09:48','09:56','10:04','10:12']},
+       {line:'JR 神戸線 新快速',from:'三ノ宮',to:'大阪',dur:'約22分',fare:'420円（IC可用）',
+        note:'稍快但票价略高；到JR大阪站，离难波/心斋桥还需换乘地铁',planTime:'09:35',
+        deps:['09:05','09:15','09:25','09:35','09:45','09:55','10:05','10:15']}]}},
+    {time:'10:00',name:'大阪购物',note:'心斋桥·道顿堀·难波 · 药妆/零食/伴手礼',tag:'sc',icon:'🛍️'},
+    {time:'14:00',name:'大阪午餐',note:'章鱼烧·大阪烧·串炸 · 道顿堀',tag:'fd',icon:'🍜'},
+    {time:'16:00',name:'取行李 · 最后补货',note:'机场免税店最后扫货',tag:'tr',icon:'📦'},
+    {time:'17:00',name:'大阪 → 关西机场',note:'HARUKA / 南海电铁 约1小时',tag:'tr',icon:'🚄',
+     tt:{title:'大阪→関西空港',sub:'务必预留充足时间，航班22:25起飞',segs:[
+       {line:'特急HARUKA（推荐）',from:'新大阪/大阪',to:'関西空港',dur:'約75分（新大阪から）',fare:'2,910円（自由席）',
+        note:'推荐乘HARUKA到关西空港，行李空间大；大阪站也停；务必17:30前出发',planTime:'17:16',
+        deps:['15:46','16:16','16:46','17:16','17:46','18:16','18:46','19:16']},
+       {line:'南海ラピート（备选）',from:'難波',to:'関西空港',dur:'約38分',fare:'1,450円（IC可用）',
+        note:'从难波出发更快，适合在心斋桥附近购物后直接出发',planTime:'17:30',
+        deps:['16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30']}]}},
+    {time:'18:00',name:'值机安检 · 机场晚餐',note:'关西机场餐厅 · 最后一顿日料',tag:'fd',icon:'🍱'},
+    {time:'22:25',name:'起飞 · 回家',note:'HO1338 吉祥航空\n22:25起飞 → 次日23:40抵沪',tag:'tr',icon:'✈️'}]}
+];
+
+// ── Load / Save ────────────────────────────────────────
+const LS_KEY = 'japanTrip_v3';
+let data = JSON.parse(localStorage.getItem(LS_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT));
+
+function saveToLocal(){
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
+}
+function resetData(){
+  if(!confirm('确认恢复默认行程？所有修改将丢失。')) return;
+  data = JSON.parse(JSON.stringify(DEFAULT));
+  saveToLocal();
+  renderAll();
+  buildEditPage();
+  showToast();
+}
+
+// ════════════════════════════════════════════════════════
+// TT STORE  (safe inline onclick reference)
+// ════════════════════════════════════════════════════════
+const _ttStore = [];
+function _ttIdx(tt){ _ttStore.push(tt); return _ttStore.length-1; }
+
+// ════════════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════════════
+const TAG_LABELS = {tr:'交通',fd:'美食',sc:'景点',ht:'住宿',fw:'花火'};
+const TAG_ICONS  = {tr:'✈️',fd:'🍽️',sc:'📍',ht:'🏠',fw:'🎇'};
+const TAG_BG     = {tr:'ebf5fb',fd:'eafaf1',sc:'fef9e7',ht:'f5eef8',fw:'fef0e7'};
+
+function renderAll(){
+  _ttStore.length = 0; // reset store on each render
+  // Overview
+  let ov = '<div class="sec-lbl">行程概览</div><div class="ov-card">';
+  data.forEach((d,i)=>{
+    const dd = d.date.slice(5).replace('-','/');
+    ov+=`<div class="ov-row" onclick="sw(${i+1})">
+      <div class="ov-day">${dd}<br>D${i}</div>
+      <div class="ov-info"><div class="ov-title">${d.emoji} ${d.title}</div><div class="ov-sub">${d.sub}</div></div>
+      <div class="ov-arrow">›</div></div>`;
+  });
+  ov+='</div>';
+  document.getElementById('d0').innerHTML = ov;
+
+  // Each day
+  data.forEach((d,i)=>{
+    const el = document.getElementById('d'+(i+1));
+    if(!el) return;
+    const cities = d.cities.map(c=>`<span class="d-city">${c}</span>`).join('');
+    const wk = ['日','一','二','三','四','五','六'];
+    const dt = new Date(d.date);
+    const wkStr = wk[dt.getDay()];
+    let tl = d.acts.map((a,ai)=>{
+      const isLast = ai===d.acts.length-1;
+      const tagHtml = `<span class="tl-tag tg-${a.tag}">${TAG_LABELS[a.tag]||a.tag}</span>`;
+      const icBg = TAG_BG[a.tag]||'f5f5f5';
+      return `<div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-icon" style="background:#${icBg}">${a.icon}</div>
+          ${isLast?'':'<div class="tl-line"></div>'}
+        </div>
+        <div class="tl-card">
+          ${a.time?`<div class="tl-time">${a.time}</div>`:''}
+          <div class="tl-name">${a.name}</div>
+          ${a.note?`<div class="tl-note">${a.note}</div>`:''}
+          ${tagHtml}
+          ${a.tt?`<br><button class="tt-btn" onclick="showTT(${_ttIdx(a.tt)})"> 🕐 发车时刻表</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+    el.innerHTML=`
+      <div class="day-map-side" id="mside${i+1}">
+        <div id="map${i+1}" class="map-canvas"></div>
+        <div class="map-day-badge">
+          <div class="mdb-date">${d.date.replace('2026-','').replace('-','/')} · 周${wkStr} · D${i}</div>
+          <div class="mdb-title">${d.emoji} ${d.title}</div>
+          <div class="mdb-cities">${d.cities.map(c=>`<span class="mdb-city">${c}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="resize-handle" id="rh${i+1}" onmousedown="startResize(event,${i+1})" ontouchstart="startResize(event,${i+1})"></div>
+      <div class="day-right-side">
+        <div class="day-hdr">
+          <div class="d-date">${d.date.replace('2026-','2026年').replace('-','月')}日 · 周${wkStr}</div>
+          <div class="d-title">${d.emoji} ${d.title}</div>
+          <div class="d-sub">${d.sub}</div>
+          <div class="d-cities">${cities}</div>
+        </div>
+        <div class="tl">${tl}</div>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════════════════════════════
+// MAP
+// ════════════════════════════════════════════════════════
+const maps={};
+function initMap(dayIdx){
+  const id='map'+dayIdx;
+  if(maps[id]||!document.getElementById(id)) return;
+  const cfg=data[dayIdx-1].map;
+  const m=L.map(id,{zoomControl:true,attributionControl:false}).setView(cfg.c,cfg.z);
+  // CartoDB Voyager — 国内可访问，无需API Key
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
+    subdomains:'abcd', maxZoom:19, crossOrigin:true
+  }).addTo(m);
+  const pts=cfg.pts||[];
+  if(pts.length>1) L.polyline(pts.map(p=>[p.lat,p.lng]),{color:'#c0392b',weight:2.5,opacity:.6,dashArray:'6,4'}).addTo(m);
+  pts.forEach(p=>{
+    const ic=L.divIcon({html:`<div style="background:#c0392b;color:#fff;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,.3);border:2px solid #fff">${p.icon}</div>`,iconSize:[30,30],iconAnchor:[15,15],className:''});
+    L.marker([p.lat,p.lng],{icon:ic}).bindPopup(`<b>${p.lb}</b>`,{maxWidth:150}).addTo(m);
+  });
+  maps[id]=m;
+  // 多次调用确保手机端渲染完成后地图正确铺满
+  setTimeout(()=>m.invalidateSize(),100);
+  setTimeout(()=>m.invalidateSize(),500);
+  setTimeout(()=>m.invalidateSize(),1200);
+}
+
+// ════════════════════════════════════════════════════════
+// TAB SWITCH
+// ════════════════════════════════════════════════════════
+function sw(i, skipPinCheck){
+  const n = data.length;
+  const clIdx   = n + 1;
+  const editIdx = n + 2;
+  // Edit tab requires PIN
+  if(i === editIdx && !skipPinCheck){
+    openPin(()=>sw(editIdx, true));
+    return;
+  }
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  document.querySelectorAll('.day').forEach((d,idx)=>d.classList.toggle('on',idx===i));
+  document.getElementById('edit-page').style.display      = (i === editIdx) ? 'block' : 'none';
+  document.getElementById('checklist-page').style.display = (i === clIdx)   ? 'block' : 'none';
+  if(i > 0 && i < clIdx) setTimeout(()=>initMap(i), 80);
+  if(i === editIdx) buildEditPage();
+  if(i === clIdx)   renderChecklist();
+}
+
+// ════════════════════════════════════════════════════════
+// NEXT STEP BAR
+// ════════════════════════════════════════════════════════
+function updateNextStep(){
+  const now = new Date();
+  // JST = UTC+9
+  const jstMs = now.getTime() + (9*3600000) + now.getTimezoneOffset()*60000;
+  const jst = new Date(jstMs);
+  const ymd = jst.toISOString().slice(0,10);
+  const hhmm = jst.toISOString().slice(11,16);
+
+  const bar = document.getElementById('next-bar');
+  const nbIcon = document.getElementById('nb-icon');
+  const nbLabel = document.getElementById('nb-label');
+  const nbMain = document.getElementById('nb-main');
+  const nbSub = document.getElementById('nb-sub');
+
+  if(ymd < '2026-09-30'){
+    const tripStart = new Date('2026-09-30T08:20:00+09:00');
+    const diffMs = tripStart - now;
+    const diffD = Math.floor(diffMs/(1000*3600*24));
+    const diffH = Math.floor((diffMs%(1000*3600*24))/(1000*3600));
+    const diffM = Math.floor((diffMs%(1000*3600))/60000);
+    bar.className='blue';
+    nbIcon.textContent='🗓️';
+    nbLabel.textContent='距出发还有';
+    nbMain.textContent=`${diffD}天 ${diffH}小时 ${diffM}分钟`;
+    nbSub.textContent='2026年9月30日 HO1505 08:20 上海浦东T2';
+    return;
+  }
+  if(ymd > '2026-10-07'){
+    bar.className='grey';
+    nbIcon.textContent='🎉';
+    nbLabel.textContent='行程状态';
+    nbMain.textContent='旅行已圆满结束！';
+    nbSub.textContent='带着满满的回忆踏上归途 ✈️';
+    return;
+  }
+
+  const dayIdx = data.findIndex(d=>d.date===ymd);
+  if(dayIdx<0) return;
+  const acts = data[dayIdx].acts.filter(a=>a.time);
+
+  let cur=null, nxt=null;
+  for(let i=0;i<acts.length;i++){
+    if(acts[i].time<=hhmm) cur=acts[i];
+    else if(!nxt) nxt=acts[i];
+  }
+
+  const d = data[dayIdx];
+  if(nxt){
+    bar.className='';
+    nbIcon.textContent=nxt.icon;
+    nbLabel.textContent=`D${dayIdx} · ${d.emoji} ${d.title}`;
+    nbMain.textContent=`下一步：${nxt.name}`;
+    nbSub.textContent=`${nxt.time} · ${nxt.note?nxt.note.split('\n')[0]:''}`;
+  } else if(cur){
+    bar.className='green';
+    nbIcon.textContent=cur.icon;
+    nbLabel.textContent=`D${dayIdx} · ${d.emoji} ${d.title} · 进行中`;
+    nbMain.textContent=cur.name;
+    nbSub.textContent=cur.note?cur.note.split('\n')[0]:'';
+  } else {
+    bar.className='blue';
+    nbIcon.textContent=d.emoji;
+    nbLabel.textContent='今日行程';
+    nbMain.textContent=d.title;
+    nbSub.textContent=d.sub;
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// EDIT PAGE
+// ════════════════════════════════════════════════════════
+let editDayIdx = 0;
+
+function buildEditPage(){
+  // Build day tabs
+  const tabsEl = document.getElementById('edit-day-tabs');
+  tabsEl.innerHTML = data.map((d,i)=>{
+    const dd=d.date.slice(5).replace('-','/');
+    return `<div class="edt${i===editDayIdx?' on':''}" onclick="switchEditDay(${i})">${dd}</div>`;
+  }).join('');
+
+  // Build all day content panels
+  const contEl = document.getElementById('edit-day-contents');
+  contEl.innerHTML = data.map((d,di)=>`
+    <div class="edit-day-content${di===editDayIdx?' on':''}" id="edit-dc-${di}">
+      ${d.acts.map((a,ai)=>actEditCard(di,ai,a)).join('')}
+      <div class="add-act-btn" onclick="addActivity(${di})">＋ 添加活动</div>
+    </div>`).join('');
+}
+
+function switchEditDay(i){
+  editDayIdx=i;
+  document.querySelectorAll('.edt').forEach((t,idx)=>t.classList.toggle('on',idx===i));
+  document.querySelectorAll('.edit-day-content').forEach((c,idx)=>c.classList.toggle('on',idx===i));
+}
+
+const TAG_OPTS = [
+  {k:'tr',label:'交通',cls:'tg-tr'},
+  {k:'fd',label:'美食',cls:'tg-fd'},
+  {k:'sc',label:'景点',cls:'tg-sc'},
+  {k:'ht',label:'住宿',cls:'tg-ht'},
+  {k:'fw',label:'花火',cls:'tg-fw'}
+];
+const ICONS = ['✈️','🚄','🚃','🚌','🚋','🏨','⛩️','🌊','🎋','🥾','🍜','🍱','🍣','🛒','🏖️','🎆','♨️','🐟','🥩','🌃','🛍️','📦','🏯','🏘️','🌿','🌉','🪨','🏔️','🦞','🚠'];
+
+function actEditCard(di, ai, a){
+  const tagOpts = TAG_OPTS.map(t=>`<span class="edit-tag-opt tl-tag tg-${t.k}${a.tag===t.k?' sel':''}" onclick="setTag(${di},${ai},'${t.k}',this)">${t.label}</span>`).join('');
+  return `<div class="edit-act" id="ea-${di}-${ai}">
+    <button class="del-btn" onclick="deleteActivity(${di},${ai})">✕</button>
+    <div class="edit-act-header">
+      <div class="edit-icon-sel" onclick="cycleIcon(${di},${ai})" id="ei-${di}-${ai}">${a.icon}</div>
+      <div style="flex:1"><div style="font-size:11px;color:#999">点击图标切换</div></div>
+    </div>
+    <div class="edit-fields">
+      <div class="edit-row">
+        <div class="edit-lbl">时间</div>
+        <input class="edit-input" type="time" value="${a.time||''}" onchange="setField(${di},${ai},'time',this.value)" style="max-width:130px">
+      </div>
+      <div class="edit-row">
+        <div class="edit-lbl">名称</div>
+        <input class="edit-input" type="text" value="${escHtml(a.name)}" onchange="setField(${di},${ai},'name',this.value)" placeholder="活动名称">
+      </div>
+      <div class="edit-row" style="align-items:flex-start">
+        <div class="edit-lbl" style="margin-top:8px">备注</div>
+        <textarea class="edit-input edit-textarea" onchange="setField(${di},${ai},'note',this.value)" placeholder="备注信息（选填）">${escHtml(a.note||'')}</textarea>
+      </div>
+      <div class="edit-tag-row">${tagOpts}</div>
+    </div>
+  </div>`;
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function setField(di,ai,field,val){
+  data[di].acts[ai][field]=val;
+}
+function setTag(di,ai,tag,el){
+  data[di].acts[ai].tag=tag;
+  el.closest('.edit-tag-row').querySelectorAll('.edit-tag-opt').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function cycleIcon(di,ai){
+  const cur=data[di].acts[ai].icon;
+  const idx=ICONS.indexOf(cur);
+  const next=ICONS[(idx+1)%ICONS.length];
+  data[di].acts[ai].icon=next;
+  document.getElementById(`ei-${di}-${ai}`).textContent=next;
+}
+function addActivity(di){
+  data[di].acts.push({time:'',name:'新活动',note:'',tag:'sc',icon:'📍'});
+  buildEditPage();
+  switchEditDay(di);
+}
+function deleteActivity(di,ai){
+  if(data[di].acts.length<=1){alert('至少保留一个活动');return;}
+  data[di].acts.splice(ai,1);
+  buildEditPage();
+  switchEditDay(di);
+}
+function saveAllEdits(){
+  saveToLocal();
+  renderAll();
+  Object.keys(maps).forEach(k=>{maps[k].remove();delete maps[k];});
+  showToast('💾 本地已保存');
+  // 同步到 GitHub（如已配置）
+  if(getGHCfg()) syncToGitHub();
+  else setSyncStatus('local');
+}
+function showToast(msg){
+  const t=document.getElementById('save-toast');
+  if(msg) t.textContent=msg;
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',2500);
+}
+
+// ════════════════════════════════════════════════════════
+// RESIZE HANDLE  (drag to adjust map/timeline split)
+// ════════════════════════════════════════════════════════
+let _rsDay=0, _rsStartX=0, _rsStartW=0;
+
+function startResize(e, dayIdx){
+  e.preventDefault();
+  _rsDay = dayIdx;
+  const side = document.getElementById('mside'+dayIdx);
+  if(!side) return;
+  _rsStartW = side.offsetWidth;
+  _rsStartX = (e.touches ? e.touches[0].clientX : e.clientX);
+  document.getElementById('rh'+dayIdx).classList.add('dragging');
+  document.addEventListener('mousemove', doResize);
+  document.addEventListener('touchmove', doResize, {passive:false});
+  document.addEventListener('mouseup',  endResize);
+  document.addEventListener('touchend', endResize);
+}
+function doResize(e){
+  e.preventDefault();
+  const side = document.getElementById('mside'+_rsDay);
+  if(!side) return;
+  const x = (e.touches ? e.touches[0].clientX : e.clientX);
+  const dx = x - _rsStartX;
+  const parent = side.parentElement;
+  const pW = parent.offsetWidth;
+  const newW = Math.min(Math.max(_rsStartW + dx, pW*0.25), pW*0.70);
+  side.style.width = newW+'px';
+  // Invalidate map size after resize
+  const m = maps['map'+_rsDay];
+  if(m) m.invalidateSize();
+}
+function endResize(){
+  if(!_rsDay) return;
+  document.getElementById('rh'+_rsDay)?.classList.remove('dragging');
+  document.removeEventListener('mousemove', doResize);
+  document.removeEventListener('touchmove', doResize);
+  document.removeEventListener('mouseup',  endResize);
+  document.removeEventListener('touchend', endResize);
+  _rsDay=0;
+}
+
+// ════════════════════════════════════════════════════════
+// PIN GATE
+// ════════════════════════════════════════════════════════
+const PIN_KEY = 'tripEditPin';
+let _pinBuf = '', _pinCallback = null, _pinMode = 'verify'; // 'verify' | 'set'
+
+function openPin(callback){
+  _pinCallback = callback;
+  _pinBuf = '';
+  const stored = localStorage.getItem(PIN_KEY);
+  _pinMode = stored ? 'verify' : 'set';
+  document.getElementById('pin-title').textContent = stored ? '🔒 编辑验证' : '🔑 设置编辑密码';
+  document.getElementById('pin-desc').textContent  = stored ? '输入4位密码进入编辑模式' : '首次使用，请设置一个4位编辑密码（行程伴侣共用）';
+  document.getElementById('pin-err').textContent   = '';
+  updatePinDots();
+  document.getElementById('pin-overlay').style.display = 'flex';
+}
+function pinKey(d){
+  if(_pinBuf.length>=4) return;
+  _pinBuf += d;
+  updatePinDots();
+  if(_pinBuf.length===4) setTimeout(pinConfirm, 150);
+}
+function pinDel(){
+  _pinBuf = _pinBuf.slice(0,-1);
+  updatePinDots();
+  document.getElementById('pin-err').textContent = '';
+}
+function updatePinDots(){
+  for(let i=0;i<4;i++)
+    document.getElementById('pd'+i).classList.toggle('filled', i<_pinBuf.length);
+}
+function pinConfirm(){
+  const stored = localStorage.getItem(PIN_KEY);
+  if(_pinMode==='set'){
+    if(_pinBuf.length<4){ document.getElementById('pin-err').textContent='请输入4位数字'; return; }
+    localStorage.setItem(PIN_KEY, _pinBuf);
+    pinClose();
+    _pinCallback && _pinCallback();
+  } else {
+    if(_pinBuf === stored){ pinClose(); _pinCallback && _pinCallback(); }
+    else {
+      document.getElementById('pin-err').textContent = '密码错误，请重试';
+      _pinBuf=''; updatePinDots();
+    }
+  }
+}
+function pinCancel(){ pinClose(); }
+function pinClose(){ document.getElementById('pin-overlay').style.display='none'; _pinBuf=''; _pinCallback=null; }
+
+// ════════════════════════════════════════════════════════
+// CHECKLIST
+// ════════════════════════════════════════════════════════
+const CL_KEY = 'tripChecklist_v1';
+const CL_ICONS = {'证件':'🪪','交通':'🚄','住宿':'🏨','金钱':'💴','通讯':'📱','行李':'🧳','穿搭':'👗','其他':'📋'};
+
+const DEFAULT_CL = [
+  {id:'证件', cat:'证件', items:[
+    {id:'d1',text:'护照（确认有效期 > 出发日+6个月）',done:false},
+    {id:'d2',text:'日本签证（贴纸或电子）',done:false},
+    {id:'d3',text:'身份证（国内备用）',done:false},
+    {id:'d4',text:'紧急联系人信息卡',done:false},
+  ]},
+  {id:'交通', cat:'交通', items:[
+    {id:'t1',text:'HO1505 机票确认单截图（9/30 08:20）',done:false},
+    {id:'t2',text:'HO1338 回程机票确认单（10/7 22:25）',done:false},
+    {id:'t3',text:'特急くろしお 10/3 13:05 指定席购买',done:false},
+    {id:'t4',text:'ICOCA/Suica 购买并充值',done:false},
+    {id:'t5',text:'关西机场→京都 HARUKA（自由席可直接乘）',done:false},
+  ]},
+  {id:'住宿', cat:'住宿', items:[
+    {id:'h1',text:'京都酒店（四条区域）确认单',done:false},
+    {id:'h2',text:'田辺酒店确认单',done:false},
+    {id:'h3',text:'白滨 奇特莱斯希莫尔 确认单',done:false},
+    {id:'h4',text:'和歌山/神户酒店确认单',done:false},
+    {id:'h5',text:'各酒店日文地址截图（打车备用）',done:false},
+    {id:'h6',text:'宅急便地址（白滨酒店日文地址）',done:false},
+  ]},
+  {id:'金钱', cat:'金钱', items:[
+    {id:'m1',text:'兑换日元（建议≥5万円现金）',done:false},
+    {id:'m2',text:'通知银行信用卡出境使用',done:false},
+    {id:'m3',text:'确认支付宝/微信海外支付开通',done:false},
+  ]},
+  {id:'通讯', cat:'通讯', items:[
+    {id:'c1',text:'日本SIM卡/随身WiFi预订',done:false},
+    {id:'c2',text:'下载 Google Maps 离线地图（关西地区）',done:false},
+    {id:'c3',text:'下载 Yahoo!乗換案内',done:false},
+    {id:'c4',text:'下载翻译APP（百度/DeepL）',done:false},
+    {id:'c5',text:'下载 Google翻译并离线下载日语包',done:false},
+  ]},
+  {id:'行李', cat:'行李', items:[
+    {id:'l1',text:'行李箱尺寸确认（吉祥航空托运限制）',done:false},
+    {id:'l2',text:'充电宝 ≤20000mAh（不可托运）随身携带',done:false},
+    {id:'l3',text:'随身液体 <100ml/瓶，装入透明袋',done:false},
+    {id:'l4',text:'备用购物袋（日本购物用）',done:false},
+    {id:'l5',text:'雨伞/折叠伞',done:false},
+  ]},
+  {id:'穿搭', cat:'穿搭', items:[
+    {id:'w1',text:'田辺花火大会服装（10/3）',done:false},
+    {id:'w2',text:'贵船/鞍马徒步鞋（10/1）',done:false},
+    {id:'w3',text:'白滨沙滩装备（10/4）',done:false},
+    {id:'w4',text:'六甲山夜景外套（夜晚凉，10/6）',done:false},
+  ]},
+  {id:'其他', cat:'其他', items:[
+    {id:'o1',text:'旅行保险购买确认',done:false},
+    {id:'o2',text:'手机备份完成',done:false},
+    {id:'o3',text:'行前检查本页面分享给同行伙伴',done:false},
+  ]},
+];
+
+let clData = JSON.parse(localStorage.getItem(CL_KEY)||'null') || JSON.parse(JSON.stringify(DEFAULT_CL));
+
+function saveCL(){ localStorage.setItem(CL_KEY, JSON.stringify(clData)); }
+
+function renderChecklist(){
+  const total = clData.reduce((s,c)=>s+c.items.length,0);
+  const done  = clData.reduce((s,c)=>s+c.items.filter(i=>i.done).length,0);
+  const pct   = total ? Math.round(done/total*100) : 0;
+
+  let html = `
+    <div class="cl-hdr">
+      <h2>✅ 行前检查清单</h2>
+      <p>出发前确认所有事项 · 点击打勾 · 长按编辑文字</p>
+    </div>
+    <div class="cl-progress">
+      <div class="cl-prog-bar"><div class="cl-prog-fill" style="width:${pct}%"></div></div>
+      <div class="cl-prog-txt">${done}/${total} · ${pct}%</div>
+    </div>`;
+
+  clData.forEach((cat,ci)=>{
+    const catDone = cat.items.filter(i=>i.done).length;
+    const catIcon = CL_ICONS[cat.cat]||'📋';
+    html += `<div class="cl-cat">
+      <div class="cl-cat-hdr">
+        <div class="cl-cat-name">${catIcon} ${cat.cat} <span class="cl-cat-count">${catDone}/${cat.items.length}</span></div>
+        <button class="cl-cat-add" onclick="clAddItem(${ci})">＋ 添加</button>
+      </div>
+      <div class="cl-items">`;
+    cat.items.forEach((item,ii)=>{
+      html += `<div class="cl-item${item.done?' done':''}" id="cli-${ci}-${ii}">
+        <div class="cl-check${item.done?' checked':''}" onclick="clToggle(${ci},${ii})">${item.done?'✓':''}</div>
+        <div class="cl-item-body">
+          <div class="cl-item-text" contenteditable="true" spellcheck="false"
+            onblur="clEditText(${ci},${ii},this)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}"
+            >${item.text}</div>
+        </div>
+        <button class="cl-del" onclick="clDel(${ci},${ii})">✕</button>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `<div class="cl-add-cat" onclick="clAddCat()">＋ 新增分类</div>`;
+  html += `<div style="padding:0 14px 16px;display:flex;gap:10px">
+    <button style="flex:1;padding:11px;background:#fff;border:1.5px solid #e74c3c;color:#e74c3c;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit" onclick="clReset()">↩ 恢复默认</button>
+    <button style="flex:1;padding:11px;background:#2980b9;color:#fff;border:none;border-radius:10px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit" onclick="clShare()">📋 复制清单文字</button>
+  </div>`;
+
+  document.getElementById('checklist-page').innerHTML = html;
+}
+
+function clToggle(ci,ii){
+  clData[ci].items[ii].done = !clData[ci].items[ii].done;
+  saveCL(); renderChecklist();
+}
+function clEditText(ci,ii,el){
+  const newText = el.innerText.trim();
+  if(newText) clData[ci].items[ii].text = newText;
+  else el.innerText = clData[ci].items[ii].text;
+  saveCL();
+}
+function clDel(ci,ii){
+  clData[ci].items.splice(ii,1);
+  saveCL(); renderChecklist();
+}
+function clAddItem(ci){
+  clData[ci].items.push({id:'n'+Date.now(),text:'新事项（点击编辑）',done:false});
+  saveCL(); renderChecklist();
+  // focus the new item
+  setTimeout(()=>{
+    const items = document.querySelectorAll(`#checklist-page .cl-cat:nth-child(${ci+3}) .cl-item-text`);
+    const last = items[items.length-1];
+    if(last){ last.focus(); document.execCommand('selectAll'); }
+  },100);
+}
+function clAddCat(){
+  const name = prompt('新分类名称：');
+  if(!name||!name.trim()) return;
+  clData.push({id:name.trim(),cat:name.trim(),items:[]});
+  saveCL(); renderChecklist();
+}
+function clReset(){
+  if(!confirm('确认恢复默认清单？所有修改将丢失。')) return;
+  clData = JSON.parse(JSON.stringify(DEFAULT_CL));
+  saveCL(); renderChecklist();
+}
+function clShare(){
+  const lines = ['🇯🇵 日本关西之旅 行前检查清单\n'];
+  clData.forEach(cat=>{
+    lines.push(`\n${CL_ICONS[cat.cat]||'📋'} ${cat.cat}`);
+    cat.items.forEach(item=>lines.push(`${item.done?'☑':'☐'} ${item.text}`));
+  });
+  const text = lines.join('\n');
+  if(navigator.clipboard) navigator.clipboard.writeText(text).then(()=>alert('已复制到剪贴板！'));
+  else { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); alert('已复制！'); }
+}
+
+// ════════════════════════════════════════════════════════
+// TIMETABLE
+// ════════════════════════════════════════════════════════
+function showTT(idx){
+  const tt = _ttStore[idx];
+  if(!tt) return;
+  document.getElementById('tt-title').textContent = tt.title || '列车时刻表';
+  document.getElementById('tt-sub').textContent   = tt.sub   || '';
+
+  // Get current JST time for highlighting nearby departures
+  const now = new Date();
+  const jstMs = now.getTime() + (9*3600000) + now.getTimezoneOffset()*60000;
+  const jst = new Date(jstMs);
+  const nowHHMM = jst.toISOString().slice(11,16);
+
+  let html = '';
+  (tt.segs||[]).forEach(seg=>{
+    const chips = (seg.deps||[]).map(dep=>{
+      let cls = 'tt-time-chip';
+      if(dep === seg.planTime) cls += ' plan';
+      else if(dep >= nowHHMM && dep <= addMinutes(nowHHMM,90)) cls += ' near';
+      return `<div class="${cls}">${dep}</div>`;
+    }).join('');
+
+    html += `<div class="tt-seg">
+      <div class="tt-seg-hdr">
+        <div class="tt-line-badge">${seg.line}</div>
+        <div class="tt-route">${seg.from} → ${seg.to}</div>
+      </div>
+      <div class="tt-meta">
+        <span>⏱ ${seg.dur}</span>
+        <span class="tm-fare">💴 ${seg.fare}</span>
+      </div>
+      ${seg.note?`<div class="tt-note">💡 ${seg.note}</div>`:''}
+      <div class="tt-times-lbl">发车时刻 &nbsp;
+        <span style="color:#c0392b;font-weight:700">■</span> 计划班次 &nbsp;
+        <span style="color:#2980b9;font-weight:700">■</span> 近1.5小时
+      </div>
+      <div class="tt-times">${chips}</div>
+    </div>`;
+  });
+
+  document.getElementById('tt-body').innerHTML = html;
+  document.getElementById('tt-overlay').classList.add('on');
+  document.getElementById('tt-sheet').classList.add('on');
+}
+
+function closeTT(){
+  document.getElementById('tt-overlay').classList.remove('on');
+  document.getElementById('tt-sheet').classList.remove('on');
+}
+
+function addMinutes(hhmm, mins){
+  const [h,m] = hhmm.split(':').map(Number);
+  const total = h*60 + m + mins;
+  return String(Math.floor(total/60)%24).padStart(2,'0') + ':' + String(total%60).padStart(2,'0');
+}
+
+// ════════════════════════════════════════════════════════
+// DYNAMIC PAGE STRUCTURE (supports variable-length trips)
+// ════════════════════════════════════════════════════════
+function applyMeta(meta){
+  const en = document.getElementById('hdr-en');
+  const h1 = document.getElementById('hdr-h1');
+  const hm = document.getElementById('hdr-meta');
+  if(en) en.textContent = meta.en_subtitle||'';
+  if(h1) h1.textContent = meta.name||'';
+  if(hm) hm.innerHTML =
+    (meta.date_range ? `<span>📅 ${meta.date_range}</span>` : '') +
+    (meta.nights     ? `<span>🗓 ${meta.nights}</span>`     : '') +
+    (meta.airline    ? `<span>✈️ ${meta.airline}</span>`    : '');
+  if(meta.name) document.title = meta.name;
+}
+
+function buildPageStructure(){
+  const n = data.length;
+  // Build tab bar
+  let tabsHtml = '<div class="tab on" onclick="sw(0)">总览</div>';
+  data.forEach((d, i) => {
+    const mm = d.date.slice(5,7).replace(/^0/,'');
+    const dd = d.date.slice(8);
+    tabsHtml += `<div class="tab" onclick="sw(${i+1})">${mm}/${dd}<br>D${i}</div>`;
+  });
+  tabsHtml += `<div class="tab" onclick="sw(${n+1})">✅<br>行前</div>`;
+  tabsHtml += `<div class="tab" onclick="sw(${n+2})">✏️<br>编辑</div>`;
+  document.getElementById('tabs').innerHTML = tabsHtml;
+
+  // Build day containers before #checklist-page
+  const clPage = document.getElementById('checklist-page');
+  // Remove any existing .day divs first
+  document.querySelectorAll('#content > .day').forEach(el => el.remove());
+  for(let i = 0; i <= n; i++){
+    const div = document.createElement('div');
+    div.id = 'd' + i;
+    div.className = 'day' + (i===0 ? ' on' : '');
+    clPage.parentNode.insertBefore(div, clPage);
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// GITHUB 云同步
+// ════════════════════════════════════════════════════════
+const GH_CFG_KEY = 'ghSyncCfg_v1';
+
+// 从 URL 自动推断仓库信息
+function detectGHInfo(){
+  const host = location.hostname;
+  const m = host.match(/^([^.]+)\.github\.io$/);
+  if(!m) return null;
+  const owner = m[1];
+  const seg = location.pathname.replace(/^\//, '').split('/')[0];
+  const repo = seg || `${owner}.github.io`;
+  return {owner, repo};
+}
+
+// 读取当前同步配置
+function getGHCfg(){
+  return JSON.parse(localStorage.getItem(GH_CFG_KEY)||'null');
+}
+
+// 更新同步状态显示
+function setSyncStatus(state, msg){
+  const el = document.getElementById('sync-status');
+  const btn = document.getElementById('sync-setup-btn');
+  if(!el) return;
+  const s = {
+    'none':    {txt:'☁️ 未配置云同步',    color:'#aaa'},
+    'ready':   {txt:'☁️ 云同步已就绪',    color:'#27ae60'},
+    'loading': {txt:'⏳ 从云端加载数据...', color:'#2980b9'},
+    'syncing': {txt:'⏳ 同步中...',        color:'#2980b9'},
+    'ok':      {txt:'✅ 已同步至云端',     color:'#27ae60'},
+    'err':     {txt:`❌ 同步失败: ${msg||''}`, color:'#e74c3c'},
+    'local':   {txt:'📱 本地模式（未配置同步）', color:'#999'},
+  }[state]||{txt:'',color:'#999'};
+  el.textContent = s.txt;
+  el.style.color = s.color;
+  if(btn) btn.textContent = getGHCfg() ? '⚙️ 配置' : '⚙️ 配置同步';
+}
+
+// ── 从云端加载数据 ───────────────────────────────────────
+async function loadRemoteData(){
+  setSyncStatus('loading');
+
+  // 优先检查 URL ?t=slug 参数（由 editor.html 生成的多行程链接）
+  const tSlug = new URLSearchParams(location.search).get('t');
+  if(tSlug){
+    try{
+      const resp = await fetch(`./trips/${tSlug}.json?_=${Date.now()}`,
+                               {cache:'no-store', signal:AbortSignal.timeout(8000)});
+      if(resp.ok){
+        const tripObj = await resp.json();
+        if(tripObj.days && Array.isArray(tripObj.days)){
+          data   = tripObj.days;
+          clData = tripObj.checklist || clData;
+          if(tripObj.meta) applyMeta(tripObj.meta);
+          console.log('从 trips/ 加载行程成功:', tSlug);
+          return true;
+        }
+      }
+    }catch(e){ console.log('trips/ 加载失败:', e.message); }
+    return false;
+  }
+
+  // 默认：从 trip-data.json 加载（原有行程的云同步数据）
+  try{
+    const resp = await fetch('./trip-data.json?_='+Date.now(),
+                             {cache:'no-store', signal:AbortSignal.timeout(8000)});
+    if(resp.ok){
+      const remote = await resp.json();
+      if(remote.trip && Array.isArray(remote.trip)){
+        data    = remote.trip;
+        clData  = remote.checklist || clData;
+        localStorage.setItem(LS_KEY, JSON.stringify(data));
+        localStorage.setItem(CL_KEY, JSON.stringify(clData));
+        console.log('从云端加载数据成功');
+        return true;
+      }
+    }
+  }catch(e){ console.log('云端加载失败或无数据:', e.message); }
+  return false;
+}
+
+// ── 提交数据到 GitHub ────────────────────────────────────
+async function syncToGitHub(){
+  const cfg = getGHCfg();
+  if(!cfg){ openGHSetup(); return false; }
+
+  setSyncStatus('syncing');
+  const payload = JSON.stringify({
+    trip: data,
+    checklist: clData,
+    savedAt: new Date().toISOString()
+  }, null, 2);
+
+  // btoa 需要处理中文
+  const b64 = btoa(unescape(encodeURIComponent(payload)));
+  const headers = {
+    'Authorization': `token ${cfg.token}`,
+    'Accept': 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json'
+  };
+  const apiBase = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/trip-data.json`;
+
+  try{
+    // 获取现有文件的 SHA（更新时必须）
+    let sha;
+    const getR = await fetch(apiBase, {headers});
+    if(getR.ok) sha = (await getR.json()).sha;
+
+    const body = {
+      message: `Update trip data ${new Date().toLocaleDateString('zh-CN')}`,
+      content: b64
+    };
+    if(sha) body.sha = sha;
+
+    const putR = await fetch(apiBase, {
+      method:'PUT', headers, body:JSON.stringify(body)
+    });
+
+    if(putR.ok){
+      setSyncStatus('ok');
+      showToast('✅ 已同步至云端，约1分钟后全员可见');
+      return true;
+    }else{
+      const err = await putR.json().catch(()=>({message:putR.status}));
+      setSyncStatus('err', err.message||putR.status);
+      showToast('❌ 同步失败：'+( err.message||putR.status));
+      return false;
+    }
+  }catch(e){
+    setSyncStatus('err', e.message);
+    showToast('❌ 网络错误：'+e.message);
+    return false;
+  }
+}
+
+// ── GitHub 配置弹窗 ──────────────────────────────────────
+function openGHSetup(){
+  const cfg = getGHCfg();
+  const detected = detectGHInfo();
+  document.getElementById('gh-owner').value  = cfg?.owner  || detected?.owner  || '';
+  document.getElementById('gh-repo').value   = cfg?.repo   || detected?.repo   || '';
+  document.getElementById('gh-token').value  = cfg?.token  || '';
+  document.getElementById('gh-test-msg').textContent = '';
+  document.getElementById('gh-overlay').style.display = 'flex';
+}
+function closeGHSetup(){
+  document.getElementById('gh-overlay').style.display = 'none';
+}
+
+async function testAndSaveGH(){
+  const owner = document.getElementById('gh-owner').value.trim();
+  const repo  = document.getElementById('gh-repo').value.trim();
+  const token = document.getElementById('gh-token').value.trim();
+  const msg   = document.getElementById('gh-test-msg');
+
+  if(!owner||!repo||!token){
+    msg.textContent = '⚠️ 请填写所有字段'; msg.style.color='#e74c3c'; return;
+  }
+  msg.textContent = '⏳ 验证中...'; msg.style.color='#2980b9';
+
+  try{
+    const resp = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      {headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}}
+    );
+    if(resp.ok){
+      const info = await resp.json();
+      msg.textContent = `✅ 验证成功！仓库: ${info.full_name}`;
+      msg.style.color = '#27ae60';
+      localStorage.setItem(GH_CFG_KEY, JSON.stringify({owner,repo,token}));
+      setTimeout(()=>{ closeGHSetup(); setSyncStatus('ready'); }, 1200);
+    }else{
+      const e = await resp.json().catch(()=>({message:resp.status}));
+      msg.textContent = `❌ 验证失败: ${e.message}`;
+      msg.style.color = '#e74c3c';
+    }
+  }catch(e){
+    msg.textContent = '❌ 网络错误: '+e.message;
+    msg.style.color = '#e74c3c';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+(async()=>{
+  // 1. 先从云端拉最新数据（如有）
+  const remoteOk = await loadRemoteData();
+  // 2. 根据实际天数重建 tab 栏和 day 容器
+  buildPageStructure();
+  // 3. 渲染页面
+  renderAll();
+  // 3. 更新同步状态
+  const cfg = getGHCfg();
+  if(cfg)      setSyncStatus(remoteOk ? 'ready' : 'ready');
+  else if(remoteOk) setSyncStatus('ready');
+  else         setSyncStatus('local');
+  // 4. 启动行程提示
+  updateNextStep();
+  setInterval(updateNextStep, 30000);
+})();
+</script>
+</body>
+</html>
