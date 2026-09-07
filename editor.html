@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TripGoGo 编辑器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;font-size:14px;background:#f0ebe6;color:#2c2c2c;height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-text-size-adjust:100%}
+
+/* ── Nav ── */
+.nav{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:#fff;padding:0 14px;height:50px;display:flex;align-items:center;gap:8px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.nav-logo{font-size:17px;font-weight:800;flex:1;letter-spacing:-.3px}
+.nav-logo em{color:#e74c3c;font-style:normal}
+.nav-pill{font-size:11px;opacity:.55;font-weight:400;margin-left:5px}
+.save-ind{font-size:11px;opacity:.5;margin-right:2px;transition:opacity .2s}
+.save-ind.dirty{color:#f39c12;opacity:1}
+.nbtn{padding:6px 12px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.nbtn.red{background:#e74c3c;color:#fff}.nbtn.red:hover{background:#c0392b}
+.nbtn.ghost{background:rgba(255,255,255,.14);color:#fff}.nbtn.ghost:hover{background:rgba(255,255,255,.24)}
+.nbtn:disabled{opacity:.45;cursor:default}
+
+/* ── Layout ── */
+.layout{flex:1;min-height:0;display:flex;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{width:210px;flex-shrink:0;background:#fff;border-right:1px solid #e8e0d8;display:flex;flex-direction:column;overflow:hidden}
+.sb-hdr{padding:10px 12px;border-bottom:1px solid #f0ebe6;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sb-hdr h2{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.6px}
+.sb-new{width:24px;height:24px;border-radius:6px;background:#e74c3c;color:#fff;border:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.trip-list{flex:1;overflow-y:auto;padding:5px}
+.ti{padding:9px 9px;border-radius:8px;cursor:pointer;margin-bottom:2px;transition:background .12s;display:flex;align-items:flex-start;gap:6px;-webkit-tap-highlight-color:transparent}
+.ti:hover{background:#f5f0eb}
+.ti.on{background:#fef3f2;border:1.5px solid #f5c6c6}
+.ti-name{font-size:12px;font-weight:600;line-height:1.3;flex:1;word-break:break-all}
+.ti-dates{font-size:10px;color:#aaa;margin-top:2px}
+.ti-del{font-size:13px;opacity:0;color:#e74c3c;flex-shrink:0;padding:1px;cursor:pointer;line-height:1;margin-top:1px}
+.ti:hover .ti-del{opacity:.7}
+.ti-del:hover{opacity:1!important}
+.sb-empty{padding:18px 12px;text-align:center;color:#bbb;font-size:12px;line-height:1.7}
+
+/* ── Main ── */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.main-tabs{display:flex;background:#fff;border-bottom:2px solid #f0ebe6;flex-shrink:0}
+.mtab{padding:11px 18px;font-size:13px;font-weight:600;color:#aaa;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .18s}
+.mtab.on{color:#e74c3c;border-bottom-color:#e74c3c}
+.mc{flex:1;min-height:0;overflow-y:auto;padding:18px;-webkit-overflow-scrolling:touch}
+
+/* ── Empty state ── */
+.es{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:#ccc}
+.es-ic{font-size:44px}
+.es h3{font-size:17px;color:#ccc;font-weight:700}
+.es p{font-size:12px;text-align:center;line-height:1.7;color:#bbb}
+.es-btn{padding:9px 18px;background:#e74c3c;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:6px}
+
+/* ── Section ── */
+.sec{background:#fff;border-radius:11px;padding:15px 17px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.sec-title{font-size:11px;font-weight:700;color:#c0392b;text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
+.fr{display:flex;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+.fr:last-child{margin-bottom:0}
+.fg{display:flex;flex-direction:column;gap:3px;flex:1;min-width:100px}
+.lbl{font-size:11px;color:#777;font-weight:600}
+input.fi,select.fi,textarea.fi{border:1.5px solid #e8e0d8;border-radius:7px;padding:7px 9px;font-size:13px;font-family:inherit;width:100%;background:#fff;transition:border .18s}
+input.fi:focus,select.fi:focus,textarea.fi:focus{outline:none;border-color:#e74c3c}
+textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
+.fi-sm{padding:5px 7px;font-size:12px}
+
+/* ── Hint ── */
+.hint{background:#f8f5f0;border:1.5px dashed #ddd;border-radius:10px;padding:13px 15px;margin-bottom:12px}
+.hint-title{font-size:11px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px}
+.hint p{font-size:12px;color:#999;line-height:1.7}
+
+/* ── Day cards ── */
+.day-card{background:#fff;border-radius:11px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:11px;overflow:hidden;border:1.5px solid #f0ebe6}
+.dc-hdr{background:linear-gradient(135deg,#b5191a 0%,#e84042 100%);color:#fff;padding:10px 13px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.dc-em{font-size:17px;flex-shrink:0}
+.dc-info{flex:1;min-width:0}
+.dc-d{font-size:10px;opacity:.7;letter-spacing:.2px}
+.dc-t{font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dc-btns{display:flex;gap:3px;flex-shrink:0}
+.dc-btn{background:rgba(255,255,255,.18);border:none;color:#fff;width:24px;height:24px;border-radius:5px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dc-btn:hover{background:rgba(255,255,255,.32)}
+.dc-btn.del{background:rgba(255,80,80,.28)}
+.dc-body{padding:12px;display:none}
+.dc-body.open{display:block}
+.day-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+
+/* ── Activity items ── */
+.acts-bar{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.act-item{background:#f9f6f2;border-radius:8px;padding:9px;margin-bottom:6px;border:1.5px solid #ece7e2}
+.act-item:hover{border-color:#e74c3c}
+.ar1{display:flex;gap:7px;align-items:flex-start}
+.a-time{width:65px;flex-shrink:0}
+.a-name{flex:1}
+.ar2{display:flex;gap:7px;margin-top:5px;flex-wrap:wrap}
+.a-note{flex:1;min-width:140px}
+.a-tag{width:105px;flex-shrink:0}
+.a-icon{width:76px;flex-shrink:0}
+.a-mappt{flex:1;min-width:100px}
+.act-foot{display:flex;gap:4px;margin-top:6px;justify-content:flex-end}
+.abtn{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid}
+.abtn.del{border-color:#fcc;color:#e74c3c;background:none}.abtn.del:hover{background:#fef0f0}
+.abtn.mv{border-color:#e8e0d8;color:#999;background:none}.abtn.mv:hover{border-color:#aaa;color:#555}
+.add-act{width:100%;padding:7px;border:2px dashed #e8e0d8;border-radius:8px;background:none;color:#bbb;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s}
+.add-act:hover{border-color:#e74c3c;color:#e74c3c;background:#fef8f8}
+
+/* ── Map section ── */
+.map-sec{margin-top:9px;padding-top:9px;border-top:1px solid #f0ebe6}
+.map-bar{font-size:11px;font-weight:700;color:#27ae60;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between}
+.geo-btn{padding:5px 10px;background:#27ae60;color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.geo-btn:hover{background:#219a52}.geo-btn:disabled{opacity:.55;cursor:default}
+.mc-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.pt-item{background:#f0faf5;border-radius:7px;padding:7px 9px;margin-bottom:5px;border:1.5px solid #c8edda;display:flex;gap:5px;align-items:flex-end}
+.pt-del{background:none;border:none;color:#bbb;cursor:pointer;font-size:15px;flex-shrink:0;padding:0 2px;margin-bottom:2px}
+.pt-del:hover{color:#e74c3c}
+.add-pt{width:100%;padding:6px;border:2px dashed #aedfc5;border-radius:7px;background:none;color:#27ae60;font-size:11px;font-weight:600;cursor:pointer}
+.add-pt:hover{background:#f0faf5}
+
+/* ── Checklist ── */
+.cl-cat{background:#fff;border-radius:9px;border:1.5px solid #ece7e2;margin-bottom:9px;overflow:hidden}
+.cl-cat-hdr{display:flex;align-items:center;padding:9px 11px;gap:7px}
+.cl-cat-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;flex-shrink:0}
+.cl-cat-del:hover{color:#e74c3c}
+.cl-items{padding:0 11px 9px}
+.cl-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid #f5f0eb}
+.cl-row:last-child{border-bottom:none}
+.cl-idel{background:none;border:none;color:#ddd;cursor:pointer;font-size:13px;flex-shrink:0}
+.cl-idel:hover{color:#e74c3c}
+.add-cli{width:100%;padding:6px 9px;border:1.5px dashed #e8e0d8;border-radius:7px;background:none;color:#bbb;font-size:11px;font-weight:600;cursor:pointer;margin-top:3px}
+.add-cli:hover{border-color:#aaa;color:#666}
+.add-cat{width:100%;padding:9px;border:2px dashed #e8e0d8;border-radius:9px;background:none;color:#bbb;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px}
+.add-cat:hover{border-color:#e74c3c;color:#e74c3c}
+.add-day{width:100%;padding:10px;border:2px dashed #e8e0d8;border-radius:10px;background:none;color:#bbb;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:11px;transition:all .18s}
+.add-day:hover{border-color:#e74c3c;color:#e74c3c;background:#fef8f8}
+
+/* ── Modals ── */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:9999}
+.mo.show{display:flex}
+.mb{background:#fff;border-radius:14px;padding:22px;width:370px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:92vh;overflow-y:auto}
+.mb h3{font-size:17px;font-weight:800;margin-bottom:3px}
+.mb-sub{font-size:12px;color:#aaa;margin-bottom:18px}
+.mb-fg{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+.mb-lbl{font-size:11px;color:#777;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.mb-lbl a{color:#e74c3c;text-decoration:none;font-size:10px}
+.ma{display:flex;gap:7px;justify-content:flex-end;margin-top:18px}
+.mbtn{padding:8px 16px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer}
+.mbtn.cancel{background:#f0ebe6;color:#666}.mbtn.cancel:hover{background:#e8e0d8}
+.mbtn.ok{background:#e74c3c;color:#fff}.mbtn.ok:hover{background:#c0392b}
+.mo-msg{font-size:12px;margin-top:8px;padding:7px 9px;border-radius:6px;display:none}
+.mo-msg.ok{background:#eafaf1;color:#27ae60}
+.mo-msg.err{background:#fef0f0;color:#e74c3c}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a2e;color:#fff;padding:9px 18px;border-radius:28px;font-size:12px;font-weight:600;z-index:99999;transition:transform .28s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── Misc ── */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #e8e0d8;border-top-color:#e74c3c;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;margin:0 2px;vertical-align:middle}
+.sdot.ok{background:#27ae60}.sdot.err{background:#e74c3c}.sdot.idle{background:#aaa}
+.loading-p{padding:24px;text-align:center;color:#bbb;font-size:12px}
+
+/* ── Date Picker ── */
+.date-pick{display:flex;gap:4px;align-items:center}
+.dp-y{width:74px!important;flex:none}
+.dp-m{width:58px!important;flex:none}
+.dp-d{width:52px!important;flex:none}
+
+/* ── Icon Picker Button ── */
+.icon-btn{font-size:20px;min-width:34px;height:30px;border:1.5px solid #e8e0d8;border-radius:7px;background:#fff;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 3px;transition:border .15s;line-height:1;vertical-align:middle}
+.icon-btn:hover{border-color:#e74c3c;background:#fef8f8}
+.icon-btn.lg{font-size:22px;min-width:40px;height:34px}
+
+/* ── Icon Picker Popup ── */
+#ip-overlay{position:fixed;inset:0;z-index:9000;display:none}
+#ip-overlay.show{display:block}
+#icon-picker{position:fixed;z-index:9001;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.22);padding:10px;width:274px;display:none}
+#icon-picker.show{display:block}
+.ip-cats{display:flex;gap:4px;margin-bottom:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px}
+.ip-cats::-webkit-scrollbar{display:none}
+.ip-cat{padding:3px 9px;border-radius:20px;border:1.5px solid #e8e0d8;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;background:#fff;color:#777;flex-shrink:0;transition:all .15s}
+.ip-cat.on{background:#e74c3c;border-color:#e74c3c;color:#fff}
+.ip-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;max-height:164px;overflow-y:auto}
+.ip-em{font-size:20px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;border:none;background:none;transition:background .12s;padding:0}
+.ip-em:hover{background:#f0ebe6}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="nav-logo">Trip<em>Go</em>Go <span class="nav-pill">编辑器</span></div>
+  <span class="save-ind" id="save-ind">已保存</span>
+  <span class="sdot idle" id="sdot"></span>
+  <button class="nbtn ghost" onclick="openDeployModal()">🚀 部署</button>
+  <button class="nbtn ghost" onclick="openGHModal()">⚙️ 云同步</button>
+  <button class="nbtn ghost" id="prev-btn" onclick="previewTrip()" disabled>👁 预览</button>
+  <button class="nbtn ghost" id="exp-btn" onclick="exportTrip()" disabled>📥 导出</button>
+  <button class="nbtn red" id="save-btn" onclick="saveTrip()" disabled>💾 保存</button>
+</nav>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sb-hdr">
+      <h2>我的攻略</h2>
+      <button class="sb-new" onclick="newTripModal()" title="新建">+</button>
+    </div>
+    <div class="trip-list" id="trip-list">
+      <div class="loading-p"><span class="spin"></span> 加载中...</div>
+    </div>
+  </aside>
+
+  <!-- Main panel -->
+  <main class="main">
+    <div class="main-tabs" id="main-tabs" style="display:none">
+      <div class="mtab on" onclick="switchTab('meta')" data-t="meta">基本信息</div>
+      <div class="mtab" onclick="switchTab('days')" data-t="days">行程详情</div>
+      <div class="mtab" onclick="switchTab('cl')" data-t="cl">行前清单</div>
+    </div>
+    <div class="mc" id="mc">
+      <div class="es">
+        <div class="es-ic">✈️</div>
+        <h3>欢迎使用攻略编辑器</h3>
+        <p>从左侧选择攻略开始编辑<br>或点击 + 新建</p>
+        <button class="es-btn" onclick="newTripModal()">+ 新建攻略</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- GitHub config modal -->
+<div class="mo" id="gh-mo">
+  <div class="mb">
+    <h3>⚙️ GitHub 云同步配置</h3>
+    <div class="mb-sub">配置后攻略保存至 GitHub，多设备实时同步</div>
+    <div class="mb-fg">
+      <div class="mb-lbl">仓库 Owner（用户名）</div>
+      <input class="fi" id="gh-owner" placeholder="例: yourname" autocomplete="off">
+    </div>
+    <div class="mb-fg">
+      <div class="mb-lbl">仓库名称</div>
+      <input class="fi" id="gh-repo" placeholder="例: tripgogo" autocomplete="off">
+    </div>
+    <div class="mb-fg">
+      <div class="mb-lbl">Personal Access Token (PAT) <a href="https://github.com/settings/tokens" target="_blank">如何获取 →</a></div>
+      <input class="fi" id="gh-token" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off">
+    </div>
+    <div class="mo-msg" id="gh-msg"></div>
+    <div class="ma">
+      <button class="mbtn cancel" onclick="closeGHModal()">取消</button>
+      <button class="mbtn ok" onclick="testGH()">验证并保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- New trip modal -->
+<div class="mo" id="new-mo">
+  <div class="mb">
+    <h3>✈️ 新建攻略</h3>
+    <div class="mb-sub">创建一个新的旅游攻略</div>
+    <div class="mb-fg">
+      <div class="mb-lbl">攻略名称 *</div>
+      <input class="fi" id="new-name" placeholder="例: 日本关西之旅 2026">
+    </div>
+    <div style="display:flex;gap:8px">
+      <div class="mb-fg">
+        <div class="mb-lbl">出发日期</div>
+        <div class="date-pick">
+          <select class="fi dp-y" id="ns-y">
+            <option value="">年</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+            <option value="2027">2027</option>
+            <option value="2028">2028</option>
+          </select>
+          <select class="fi dp-m" id="ns-m">
+            <option value="">月</option>
+            <option value="01">1月</option><option value="02">2月</option><option value="03">3月</option>
+            <option value="04">4月</option><option value="05">5月</option><option value="06">6月</option>
+            <option value="07">7月</option><option value="08">8月</option><option value="09">9月</option>
+            <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+          </select>
+          <select class="fi dp-d" id="ns-d">
+            <option value="">日</option>
+            <option value="01">1日</option><option value="02">2日</option><option value="03">3日</option>
+            <option value="04">4日</option><option value="05">5日</option><option value="06">6日</option>
+            <option value="07">7日</option><option value="08">8日</option><option value="09">9日</option>
+            <option value="10">10日</option><option value="11">11日</option><option value="12">12日</option>
+            <option value="13">13日</option><option value="14">14日</option><option value="15">15日</option>
+            <option value="16">16日</option><option value="17">17日</option><option value="18">18日</option>
+            <option value="19">19日</option><option value="20">20日</option><option value="21">21日</option>
+            <option value="22">22日</option><option value="23">23日</option><option value="24">24日</option>
+            <option value="25">25日</option><option value="26">26日</option><option value="27">27日</option>
+            <option value="28">28日</option><option value="29">29日</option><option value="30">30日</option>
+            <option value="31">31日</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-fg" style="max-width:90px">
+        <div class="mb-lbl">天数</div>
+        <input class="fi" id="new-ndays" type="number" min="1" max="30" value="7">
+      </div>
+    </div>
+    <div class="mo-msg" id="new-msg"></div>
+    <div class="ma">
+      <button class="mbtn cancel" onclick="closeNewModal()">取消</button>
+      <button class="mbtn ok" onclick="createTrip()">创建</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Deploy Modal -->
+<div class="mo" id="deploy-mo">
+  <div class="mb">
+    <h3>🚀 部署到 GitHub Pages</h3>
+    <div class="mb-sub">将 index.html / editor.html 上传到 GitHub，不存在的仓库将自动创建并开启 Pages</div>
+    <div class="mb-fg">
+      <div class="mb-lbl">GitHub 用户名</div>
+      <input class="fi" id="dep-owner" readonly style="background:#f5f5f5;color:#999">
+    </div>
+    <div class="mb-fg">
+      <div class="mb-lbl">仓库名称 <span style="font-weight:400;color:#bbb">（不存在则自动创建公开仓库）</span></div>
+      <input class="fi" id="dep-repo" placeholder="例: tripgogo_test" autocomplete="off">
+    </div>
+    <div class="mo-msg" id="dep-msg" style="line-height:1.6"></div>
+    <div class="ma">
+      <button class="mbtn cancel" onclick="closeDeployModal()">关闭</button>
+      <button class="mbtn ok" id="dep-btn" onclick="confirmDeploy()">开始部署</button>
+    </div>
+  </div>
+</div>
+
+<!-- Icon Picker -->
+<div id="ip-overlay" onclick="closeIconPicker()"></div>
+<div id="icon-picker">
+  <div class="ip-cats" id="ip-cats"></div>
+  <div class="ip-grid" id="ip-grid"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const GH_KEY   = 'ghSyncCfg_v1';
+const IDX_PATH = 'trips/index.json';
+
+let tripIndex   = [];   // [{slug,name,dates}]
+let curSlug     = null;
+let cur         = null; // full trip object {meta, days, checklist}
+let dirty       = false;
+let curTab      = 'meta';
+
+// ── GitHub helpers ──────────────────────────
+function ghCfg(){ return JSON.parse(localStorage.getItem(GH_KEY)||'null'); }
+function ghSave(c){ localStorage.setItem(GH_KEY,JSON.stringify(c)); }
+
+// Authorization: Bearer 同时兼容经典 PAT (ghp_) 和细粒度 PAT (github_pat_)
+function ghHdrs(tok){
+  return {'Authorization':`Bearer ${tok||ghCfg()?.token}`,
+          'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+}
+
+// 用 TextDecoder 解码，替代废弃的 escape()
+async function ghGet(path){
+  const c=ghCfg(); if(!c) return null;
+  const r=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`,
+                      {headers:ghHdrs(c.token)});
+  if(!r.ok) return null;
+  const j=await r.json();
+  const bytes=Uint8Array.from(atob(j.content.replace(/\n/g,'')),ch=>ch.charCodeAt(0));
+  const txt=new TextDecoder().decode(bytes);
+  return {data:JSON.parse(txt), sha:j.sha};
+}
+
+// 用 TextEncoder 编码，替代废弃的 unescape()
+function _toB64(str){
+  const bytes=new TextEncoder().encode(str);
+  let s='';
+  // 分块处理防止大内容 spread 栈溢出
+  for(let i=0;i<bytes.length;i+=8192) s+=String.fromCharCode(...bytes.subarray(i,i+8192));
+  return btoa(s);
+}
+
+async function ghPut(path, content, sha){
+  const c=ghCfg(); if(!c) throw new Error('未配置GitHub');
+  const url=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`;
+  const body={message:`Update ${path}`,content:_toB64(JSON.stringify(content,null,2))};
+  if(sha) body.sha=sha;
+  const r=await fetch(url,{method:'PUT',headers:ghHdrs(c.token),body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.json().catch(()=>({message:r.status}));throw new Error(e.message||r.status);}
+  return (await r.json()).content.sha;
+}
+
+async function ghDel(path, sha){
+  const c=ghCfg(); if(!c||!sha) return;
+  await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`,
+    {method:'DELETE',headers:ghHdrs(c.token),
+     body:JSON.stringify({message:`Delete ${path}`,sha})});
+}
+
+// ── Deploy HTML files ───────────────────────
+// 上传原始文本（HTML文件）到 GitHub，不做 JSON.stringify
+async function ghPutRaw(path, text, sha){
+  const c=ghCfg(); if(!c) throw new Error('未配置GitHub');
+  const url=`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${path}`;
+  const body={message:`Deploy ${path} via TripGoGo editor`,content:_toB64(text)};
+  if(sha) body.sha=sha;
+  const r=await fetch(url,{method:'PUT',headers:ghHdrs(c.token),body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.json().catch(()=>({message:r.status}));throw new Error(e.message||r.status);}
+  return (await r.json()).content.sha;
+}
+
+function deployFiles(){
+  if(!ghCfg()){
+    toast('⚠️ 请先点 ⚙️ 云同步 配置 GitHub PAT');
+    openGHModal(); return;
+  }
+  // 支持多选：同时选 index.html + editor.html
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='.html'; inp.multiple=true; inp.style.display='none';
+  document.body.appendChild(inp);
+  inp.onchange=async ev=>{
+    document.body.removeChild(inp);
+    const files=[...ev.target.files];
+    if(!files.length) return;
+    const names=files.map(f=>f.name).join('、');
+    if(!confirm(`将上传 ${names} 到 GitHub，覆盖同名文件，确认？`)) return;
+    let ok=0, fail=[];
+    for(const file of files){
+      toast(`🚀 上传 ${file.name}...`);
+      try{
+        const text=await file.text();
+        const ex=await ghGet(file.name).catch(()=>null);
+        await ghPutRaw(file.name, text, ex?.sha);
+        ok++;
+      }catch(e){ fail.push(`${file.name}(${e.message})`); }
+    }
+    if(fail.length) toast(`❌ 失败: ${fail.join(' ')}`, 5000);
+    else {
+      const c=ghCfg();
+      toast(`✅ ${ok} 个文件已上传，约1分钟后 GitHub Pages 生效`);
+      setTimeout(()=> window.open(`https://${c.owner}.github.io/${c.repo}/`,'_blank'), 1500);
+    }
+  };
+  inp.click();
+}
+
+// ── Deploy to arbitrary repo ────────────────
+function openDeployModal(){
+  if(!ghCfg()){ toast('⚠️ 请先配置 ⚙️ 云同步'); openGHModal(); return; }
+  const c=ghCfg();
+  document.getElementById('dep-owner').value=c.owner;
+  document.getElementById('dep-repo').value='';
+  _depMsg('','');
+  const btn=document.getElementById('dep-btn');
+  btn.disabled=false; btn.textContent='开始部署';
+  document.getElementById('deploy-mo').classList.add('show');
+  setTimeout(()=>document.getElementById('dep-repo').focus(),120);
+}
+function closeDeployModal(){ document.getElementById('deploy-mo').classList.remove('show'); }
+
+function _depMsg(type,html){
+  const el=document.getElementById('dep-msg');
+  el.className='mo-msg'+(type?' '+type:'');
+  el.innerHTML=html;
+  el.style.display=html?'block':'none';
+}
+
+// 向指定 owner/repo 上传任意文本文件
+async function _ghPutTo(owner,repo,token,path,text,sha){
+  const url=`https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+  const hd={'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+  const body={message:`Deploy ${path} via TripGoGo`,content:_toB64(text)};
+  if(sha) body.sha=sha;
+  const r=await fetch(url,{method:'PUT',headers:hd,body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.json().catch(()=>({message:r.status}));throw new Error(e.message||r.status);}
+}
+
+async function confirmDeploy(){
+  const owner=document.getElementById('dep-owner').value.trim();
+  const repo =document.getElementById('dep-repo').value.trim();
+  if(!repo){_depMsg('err','请填写仓库名称');return;}
+  if(!/^[a-zA-Z0-9_.-]+$/.test(repo)){_depMsg('err','仓库名只能含字母、数字、_、-、.');return;}
+
+  const c=ghCfg(); const token=c.token;
+  const hd={'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+  const btn=document.getElementById('dep-btn');
+  btn.disabled=true; btn.textContent='部署中...';
+
+  try{
+    // ── 1. 确认或创建仓库 ────────────────────────────────
+    _depMsg('','⏳ 检查仓库...');
+    const ck=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:hd});
+    if(!ck.ok){
+      if(ck.status!==404){
+        const e=await ck.json().catch(()=>({}));
+        const hint=ck.status===401?' (Token 无效或已过期)':ck.status===403?' (权限不足)'  :'';
+        throw new Error((e.message||'HTTP '+ck.status)+hint);
+      }
+      _depMsg('','⏳ 创建公开仓库 <b>'+repo+'</b>...');
+      const cr=await fetch('https://api.github.com/user/repos',{
+        method:'POST',headers:hd,
+        body:JSON.stringify({name:repo,auto_init:true,private:false,description:'TripGoGo travel guide'})
+      });
+      if(!cr.ok){
+        const e=await cr.json().catch(()=>({}));
+        const hint=cr.status===422?' (名称含非法字符或已被占用)':'';
+        throw new Error('创建仓库失败: '+(e.message||cr.status)+hint);
+      }
+      _depMsg('','⏳ 等待仓库初始化...');
+      await new Promise(res=>setTimeout(res,2500));
+    }
+
+    // ── 2. 读取 index.html / editor.html ────────────────
+    _depMsg('','⏳ 读取文件...');
+    const needed=['index.html','editor.html'];
+    const contents={};
+    for(const f of needed){
+      try{ const fr=await fetch('./'+f,{cache:'no-store'}); if(fr.ok) contents[f]=await fr.text(); }
+      catch(e){}
+    }
+    const missing=needed.filter(f=>!contents[f]);
+    if(missing.length){
+      _depMsg('','⚠️ 无法自动读取文件，请在弹出框中选择: <b>'+missing.join(' 和 ')+'</b>');
+      await new Promise((resolve,reject)=>{
+        const inp=document.createElement('input');
+        inp.type='file';inp.accept='.html';inp.multiple=true;inp.style.display='none';
+        document.body.appendChild(inp);
+        inp.onchange=async ev=>{
+          document.body.removeChild(inp);
+          if(!ev.target.files.length){reject(new Error('未选择文件'));return;}
+          for(const file of ev.target.files) contents[file.name]=await file.text();
+          resolve();
+        };
+        inp.click();
+      });
+    }
+
+    // ── 3. 上传文件 ──────────────────────────────────────
+    for(const fname of needed){
+      if(!contents[fname]) continue;
+      _depMsg('','⏳ 上传 <b>'+fname+'</b>...');
+      const ex=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${fname}`,{headers:hd});
+      const sha=ex.ok?(await ex.json()).sha:undefined;
+      await _ghPutTo(owner,repo,token,fname,contents[fname],sha);
+    }
+
+    // ── 4. 启用 GitHub Pages（已启用则忽略） ─────────────
+    _depMsg('','⏳ 启用 GitHub Pages...');
+    await fetch(`https://api.github.com/repos/${owner}/${repo}/pages`,{
+      method:'POST',headers:hd,
+      body:JSON.stringify({source:{branch:'main',path:'/'}})
+    }).catch(()=>{});
+
+    // ── 5. 完成 ──────────────────────────────────────────
+    const url=`https://${owner}.github.io/${repo}/`;
+    _depMsg('ok',
+      `✅ 部署成功！约 1 分钟后可访问：<br>
+       <a href="${url}" target="_blank"
+          style="color:#e74c3c;font-weight:700;word-break:break-all">${url}</a><br>
+       <span style="font-size:11px;color:#aaa">首次创建仓库可能需要 3-5 分钟</span>`);
+    btn.textContent='完成 ✓';
+
+  }catch(e){
+    _depMsg('err','❌ '+e.message);
+    btn.disabled=false; btn.textContent='重试';
+  }
+}
+
+// ── Sync dot ───────────────────────────────
+function sdot(s){ // 'ok'|'err'|'idle'
+  document.getElementById('sdot').className=`sdot ${s}`;
+}
+
+// ── Toast ──────────────────────────────────
+let _tt;
+function toast(msg,dur=2400){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),dur);
+}
+
+// ── Dirty flag ─────────────────────────────
+function setDirty(v){
+  dirty=v;
+  const el=document.getElementById('save-ind');
+  el.textContent=v?'有未保存修改':'已保存';
+  el.classList.toggle('dirty',v);
+}
+function markDirty(){ setDirty(true); }
+
+// ══════════════════════════════════════════════
+// TRIP INDEX
+// ══════════════════════════════════════════════
+async function loadIndex(){
+  document.getElementById('trip-list').innerHTML=
+    '<div class="loading-p"><span class="spin"></span> 加载中...</div>';
+
+  if(!ghCfg()){
+    tripIndex=JSON.parse(localStorage.getItem('_tg_idx')||'[]');
+  } else {
+    try{
+      const r=await ghGet(IDX_PATH);
+      tripIndex=r?.data||[];
+      sdot('ok');
+    }catch(e){ tripIndex=[]; sdot('err'); }
+  }
+  renderIndex();
+}
+
+async function saveIndex(){
+  if(!ghCfg()){localStorage.setItem('_tg_idx',JSON.stringify(tripIndex));return;}
+  try{
+    const ex=await ghGet(IDX_PATH);
+    await ghPut(IDX_PATH,tripIndex,ex?.sha);
+  }catch(e){console.warn('idx save err',e);}
+}
+
+function renderIndex(){
+  const el=document.getElementById('trip-list');
+  if(!tripIndex.length){
+    el.innerHTML='<div class="sb-empty">还没有攻略<br>点击 + 新建一个</div>'; return;
+  }
+  el.innerHTML=tripIndex.map(t=>`
+    <div class="ti ${t.slug===curSlug?'on':''}" onclick="loadTrip('${esc(t.slug)}')">
+      <div style="flex:1;min-width:0">
+        <div class="ti-name">${esc(t.name)}</div>
+        <div class="ti-dates">${esc(t.dates||'')}</div>
+      </div>
+      <span class="ti-del" onclick="event.stopPropagation();delTrip('${esc(t.slug)}')" title="删除">🗑</span>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════════
+// LOAD / SAVE TRIP
+// ══════════════════════════════════════════════
+async function loadTrip(slug){
+  if(dirty&&!confirm('有未保存的修改，确认切换？')) return;
+  curSlug=slug;
+  document.getElementById('mc').innerHTML=
+    '<div class="loading-p"><span class="spin"></span> 加载攻略...</div>';
+  document.getElementById('main-tabs').style.display='flex';
+
+  let tripData;
+  if(!ghCfg()){
+    const s=localStorage.getItem(`_tg_t_${slug}`);
+    tripData=s?JSON.parse(s):null;
+  } else {
+    try{ const r=await ghGet(`trips/${slug}.json`); tripData=r?.data; }
+    catch(e){ toast('❌ 加载失败'); return; }
+  }
+
+  if(!tripData){ toast('❌ 找不到攻略数据'); return; }
+  cur=tripData;
+  renderIndex();
+  renderTab(curTab);
+  setDirty(false);
+  document.getElementById('prev-btn').disabled=false;
+  document.getElementById('exp-btn').disabled=false;
+  document.getElementById('save-btn').disabled=false;
+}
+
+async function saveTrip(){
+  if(!cur||!curSlug) return;
+  // Update index entry
+  const meta=cur.meta||{};
+  const entry={slug:curSlug,name:meta.name||curSlug,dates:meta.date_range||''};
+  const idx=tripIndex.findIndex(t=>t.slug===curSlug);
+  if(idx>=0) tripIndex[idx]=entry; else tripIndex.push(entry);
+
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='保存中...';
+
+  if(!ghCfg()){
+    localStorage.setItem(`_tg_t_${curSlug}`,JSON.stringify(cur));
+    localStorage.setItem('_tg_idx',JSON.stringify(tripIndex));
+    setDirty(false); renderIndex();
+    btn.disabled=false; btn.textContent='💾 保存';
+    toast('✅ 已保存到本地'); return;
+  }
+
+  try{
+    const ex=await ghGet(`trips/${curSlug}.json`);
+    await ghPut(`trips/${curSlug}.json`,cur,ex?.sha);
+    await saveIndex();
+    setDirty(false); sdot('ok'); renderIndex();
+    toast('✅ 已同步至云端');
+  }catch(e){ sdot('err'); toast('❌ 保存失败: '+e.message,4000); }
+  finally{ btn.disabled=false; btn.textContent='💾 保存'; }
+}
+
+// ══════════════════════════════════════════════
+// NEW / DELETE TRIP
+// ══════════════════════════════════════════════
+function newTripModal(){
+  document.getElementById('new-name').value='';
+  ['ns-y','ns-m','ns-d'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('new-ndays').value='7';
+  showMsg('new-msg','','');
+  document.getElementById('new-mo').classList.add('show');
+  setTimeout(()=>document.getElementById('new-name').focus(),100);
+}
+function closeNewModal(){ document.getElementById('new-mo').classList.remove('show'); }
+
+function makeSlug(name){
+  const latin=name.replace(/[^\x00-\x7F]/g,'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const ts=Math.random().toString(36).slice(-4);
+  return (latin||'trip')+'-'+ts;
+}
+
+function createTrip(){
+  const name=document.getElementById('new-name').value.trim();
+  if(!name){ showMsg('new-msg','err','请填写攻略名称'); return; }
+
+  const startStr=getModalDate();
+  const n=parseInt(document.getElementById('new-ndays').value)||7;
+  const slug=makeSlug(name);
+
+  const days=[];
+  for(let i=0;i<n;i++){
+    let ds='';
+    if(startStr){ const d=new Date(startStr); d.setDate(d.getDate()+i); ds=d.toISOString().slice(0,10); }
+    days.push({date:ds,title:`第${i+1}天`,emoji:'📍',sub:'',cities:[],
+               map:{c:[35,135],z:12,pts:[]},acts:[]});
+  }
+
+  let dateRange='';
+  if(startStr){
+    const s=new Date(startStr),e=new Date(startStr);
+    e.setDate(e.getDate()+n-1);
+    dateRange=`${s.getMonth()+1}/${s.getDate()} – ${e.getMonth()+1}/${e.getDate()}`;
+  }
+
+  cur={
+    meta:{name,en_subtitle:'',date_range:dateRange,nights:`${n}天${n-1}夜`,airline:''},
+    days,
+    checklist:[
+      {id:'证件',cat:'证件',items:[{id:'i0',text:'护照（有效期 > 出发+6个月）',done:false}]},
+      {id:'交通',cat:'交通',items:[{id:'i0',text:'机票确认单截图',done:false}]}
+    ]
+  };
+  curSlug=slug;
+  tripIndex.push({slug,name,dates:dateRange});
+
+  if(!ghCfg()){
+    localStorage.setItem(`_tg_t_${slug}`,JSON.stringify(cur));
+    localStorage.setItem('_tg_idx',JSON.stringify(tripIndex));
+  }
+
+  closeNewModal();
+  renderIndex();
+  document.getElementById('main-tabs').style.display='flex';
+  document.getElementById('prev-btn').disabled=false;
+  document.getElementById('exp-btn').disabled=false;
+  document.getElementById('save-btn').disabled=false;
+  switchTab('meta');
+  setDirty(true);
+  toast('✅ 新建成功，记得保存');
+}
+
+async function delTrip(slug){
+  const entry=tripIndex.find(t=>t.slug===slug);
+  if(!confirm(`确认删除「${entry?.name||slug}」？此操作不可恢复`)) return;
+
+  if(ghCfg()){
+    try{ const r=await ghGet(`trips/${slug}.json`); if(r) await ghDel(`trips/${slug}.json`,r.sha); }
+    catch(e){}
+  } else { localStorage.removeItem(`_tg_t_${slug}`); }
+
+  tripIndex=tripIndex.filter(t=>t.slug!==slug);
+  await saveIndex();
+
+  if(curSlug===slug){
+    curSlug=null; cur=null; dirty=false;
+    document.getElementById('main-tabs').style.display='none';
+    document.getElementById('mc').innerHTML=`<div class="es">
+      <div class="es-ic">✈️</div><h3>欢迎使用攻略编辑器</h3>
+      <p>从左侧选择攻略开始编辑<br>或点击 + 新建</p>
+      <button class="es-btn" onclick="newTripModal()">+ 新建攻略</button></div>`;
+    ['prev-btn','exp-btn','save-btn'].forEach(id=>document.getElementById(id).disabled=true);
+  }
+  renderIndex();
+  toast('🗑 已删除');
+}
+
+// ══════════════════════════════════════════════
+// PREVIEW / EXPORT
+// ══════════════════════════════════════════════
+function previewTrip(){
+  if(!curSlug) return;
+  const c=ghCfg();
+  if(c) window.open(`https://${c.owner}.github.io/${c.repo}/index.html?t=${curSlug}`,'_blank');
+  else toast('⚠️ 配置 GitHub 后才能预览线上效果');
+}
+
+async function exportTrip(){
+  if(!cur) return;
+  toast('📥 正在生成...');
+  // 先尝试自动 fetch（HTTP 服务器/GitHub Pages 可用）
+  try{
+    const r=await fetch('./index.html',{cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    _doExport(await r.text());
+  }catch(e){
+    // 本地 file:// 打开时 fetch 被浏览器拦截 → 请用户手动选文件
+    toast('⚠️ 请选择本地的 index.html 作为模板', 4000);
+    const inp=document.createElement('input');
+    inp.type='file'; inp.accept='.html'; inp.style.display='none';
+    document.body.appendChild(inp);
+    inp.onchange=async ev=>{
+      document.body.removeChild(inp);
+      const file=ev.target.files[0];
+      if(!file){ toast('❌ 未选择文件'); return; }
+      _doExport(await file.text());
+    };
+    inp.click();
+  }
+}
+
+function _doExport(html){
+  try{
+    const m=cur.meta||{};
+    // 替换行程数据
+    html=html.replace(/const DEFAULT = \[[\s\S]+?\n\];/,
+      'const DEFAULT = '+JSON.stringify(cur.days,null,2)+';');
+    html=html.replace(/const DEFAULT_CL = \[[\s\S]+?\n\];/,
+      'const DEFAULT_CL = '+JSON.stringify(cur.checklist,null,2)+';');
+    // 替换标题 & meta 字段
+    if(m.name){
+      html=html.replace(/<title>.*?<\/title>/,`<title>${esc(m.name)}</title>`);
+      html=html.replace(/(id="hdr-h1"[^>]*>)[^<]*/,`$1${esc(m.name)}`);
+    }
+    if(m.en_subtitle !== undefined)
+      html=html.replace(/(id="hdr-en"[^>]*>)[^<]*/,`$1${esc(m.en_subtitle||'')}`);
+    if(m.date_range) html=html.replace(/📅 [^<]+/,'📅 '+esc(m.date_range));
+    if(m.nights)     html=html.replace(/🗓 [^<]+/,'🗓 '+esc(m.nights));
+    if(m.airline)    html=html.replace(/✈️ [^<]+/,'✈️ '+esc(m.airline));
+    // 下载
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=(m.name||'trip').replace(/[\\/:*?"<>|]/g,'_')+'.html';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(a.href);
+    toast('✅ 已导出为独立 HTML');
+  }catch(e){ toast('❌ 导出处理失败: '+e.message,3500); }
+}
+
+// ══════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.mtab').forEach(el=>el.classList.toggle('on',el.dataset.t===tab));
+  renderTab(tab);
+}
+
+function renderTab(tab){
+  if(!cur) return;
+  const mc=document.getElementById('mc');
+  if(tab==='meta')      mc.innerHTML=renderMeta();
+  else if(tab==='days') mc.innerHTML=renderDays();
+  else                  mc.innerHTML=renderCL();
+}
+
+// ══════════════════════════════════════════════
+// META TAB
+// ══════════════════════════════════════════════
+function renderMeta(){
+  const m=cur.meta||{};
+  return `
+<div class="sec">
+  <div class="sec-title">基本信息</div>
+  <div class="fr">
+    <div class="fg" style="min-width:200px">
+      <div class="lbl">行程名称 *</div>
+      <input class="fi" value="${esc(m.name||'')}" oninput="updMeta('name',this.value)">
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg">
+      <div class="lbl">英文副标题</div>
+      <input class="fi" value="${esc(m.en_subtitle||'')}" placeholder="OSAKA · KYOTO · KOBE" oninput="updMeta('en_subtitle',this.value)">
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg" style="min-width:110px">
+      <div class="lbl">日期区间</div>
+      <input class="fi" value="${esc(m.date_range||'')}" placeholder="9/30 – 10/7" oninput="updMeta('date_range',this.value)">
+    </div>
+    <div class="fg" style="min-width:90px">
+      <div class="lbl">天数/夜数</div>
+      <input class="fi" value="${esc(m.nights||'')}" placeholder="8天7夜" oninput="updMeta('nights',this.value)">
+    </div>
+    <div class="fg" style="min-width:90px">
+      <div class="lbl">航空公司</div>
+      <input class="fi" value="${esc(m.airline||'')}" placeholder="吉祥航空" oninput="updMeta('airline',this.value)">
+    </div>
+  </div>
+</div>
+<div class="hint">
+  <div class="hint-title">💡 使用说明</div>
+  <p>1. 在<b>基本信息</b>填写行程名称、日期等概要<br>
+  2. 在<b>行程详情</b>添加每日活动；每个活动可填写"地图标注名称"，然后点"自动获取坐标"<br>
+  3. 在<b>行前清单</b>管理出发前要准备的事项<br>
+  4. 点击 <b>💾 保存</b> 提交至 GitHub，点击 <b>👁 预览</b> 查看展示效果<br>
+  5. 点击 <b>📥 导出</b> 下载独立 HTML（无需 GitHub 也可分享）</p>
+</div>`;
+}
+function updMeta(k,v){ if(!cur.meta) cur.meta={}; cur.meta[k]=v; markDirty(); }
+
+// ══════════════════════════════════════════════
+// DAYS TAB
+// ══════════════════════════════════════════════
+function renderDays(){
+  return `<button class="add-day" onclick="addDay()">+ 添加新的一天</button>` +
+    (cur.days||[]).map((d,di)=>renderDayCard(d,di)).join('');
+}
+
+function renderDayCard(day,di){
+  const acts=(day.acts||[]);
+  const pts=((day.map||{}).pts||[]);
+  const mc=(day.map||{}).c||[35,135];
+  const mz=(day.map||{}).z||12;
+
+  const actsHtml=acts.map((a,ai)=>renderActItem(a,di,ai)).join('');
+
+  const ptsHtml=pts.map((p,pi)=>`
+<div class="pt-item" id="pt-${di}-${pi}">
+  <div class="fg" style="flex:1.5">
+    <div class="lbl">名称</div>
+    <input class="fi fi-sm" value="${esc(p.lb||'')}" placeholder="大阪城" oninput="updPt(${di},${pi},'lb',this.value)">
+  </div>
+  <div class="fg" style="width:82px;flex:none">
+    <div class="lbl">纬度</div>
+    <input class="fi fi-sm" value="${p.lat||''}" placeholder="34.xxx" oninput="updPt(${di},${pi},'lat',+this.value||0)">
+  </div>
+  <div class="fg" style="width:82px;flex:none">
+    <div class="lbl">经度</div>
+    <input class="fi fi-sm" value="${p.lng||''}" placeholder="135.xxx" oninput="updPt(${di},${pi},'lng',+this.value||0)">
+  </div>
+  <div class="fg" style="width:44px;flex:none">
+    <div class="lbl">图标</div>
+    <button class="icon-btn" id="icon-btn-pt-${di}-${pi}" onclick="openIconPicker(this,(em)=>{updPt(${di},${pi},'icon',em);document.getElementById('icon-btn-pt-${di}-${pi}').textContent=em;})">${esc(p.icon||'📍')}</button>
+  </div>
+  <button class="pt-del" onclick="delPt(${di},${pi})" title="删除">✕</button>
+</div>`).join('');
+
+  return `
+<div class="day-card" id="dc-${di}">
+  <div class="dc-hdr" onclick="toggleDay(${di})">
+    <span class="dc-em" id="dcem-${di}">${esc(day.emoji||'📍')}</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-${di}">${esc(day.date||'')} · Day ${di+1}</div>
+      <div class="dc-t" id="dct-${di}">${esc(day.title||'（未命名）')}</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(${di},-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(${di},1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(${di})">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-${di}">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        ${mkDatePicker(day.date,di)}
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="${esc(day.title||'')}" oninput="updDay(${di},'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-${di}" onclick="openIconPicker(this,(em)=>{updDay(${di},'emoji',em);document.getElementById('icon-btn-day-${di}').textContent=em;document.getElementById('dcem-${di}').textContent=em;})">${esc(day.emoji||'📍')}</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="${esc((day.cities||[]).join(','))}" placeholder="大阪,京都"
+          oninput="updDay(${di},'cities',this.value.split(',').map(c=>c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="${esc(day.sub||'')}" placeholder="今日路线概要" oninput="updDay(${di},'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-${di}">${actsHtml}</div>
+    <button class="add-act" onclick="addAct(${di})">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-${di}" onclick="geocodeDay(${di})">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="${mc[0]}" oninput="updMapC(${di},0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="${mc[1]}" oninput="updMapC(${di},1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="${mz}" oninput="updMapZ(${di},this.value)">
+        </div>
+      </div>
+      <div id="pts-${di}">${ptsHtml}</div>
+      <button class="add-pt" onclick="addPt(${di})">+ 添加标注点</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function renderActItem(a,di,ai){
+  const tags=['tr','fd','sc','ht','fw'];
+  const tn={'tr':'交通','fd':'美食','sc':'景点','ht':'住宿','fw':'活动'};
+  const opts=tags.map(t=>`<option value="${t}" ${a.tag===t?'selected':''}>${t}-${tn[t]}</option>`).join('');
+  return `
+<div class="act-item" id="act-${di}-${ai}">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="${esc(a.time||'')}" placeholder="09:00" oninput="updAct(${di},${ai},'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="${esc(a.name||'')}" placeholder="参观天守阁" oninput="updAct(${di},${ai},'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="${esc(a.note||'')}" placeholder="门票¥800，需提前预约" oninput="updAct(${di},${ai},'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(${di},${ai},'tag',this.value)">${opts}</select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-${di}-${ai}" onclick="openIconPicker(this,(em)=>{updAct(${di},${ai},'icon',em);document.getElementById('icon-btn-act-${di}-${ai}').textContent=em;})">${esc(a.icon||'📍')}</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="${esc(a.mapPoint||'')}" placeholder="大阪城（日文/英文更准确）" oninput="updAct(${di},${ai},'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(${di},${ai},-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(${di},${ai},1)">↓</button>
+    <button class="abtn del" onclick="delAct(${di},${ai})">删除</button>
+  </div>
+</div>`;
+}
+
+// ── Day mutations ───────────────────────────
+function toggleDay(di){
+  const b=document.getElementById(`dcb-${di}`);
+  b.classList.toggle('open');
+}
+
+function updDay(di,k,v){
+  cur.days[di][k]=v; markDirty();
+  if(k==='date') document.getElementById(`dcd-${di}`).textContent=`${v} · Day ${di+1}`;
+  if(k==='title') document.getElementById(`dct-${di}`).textContent=v||'（未命名）';
+  if(k==='emoji') document.getElementById(`dcem-${di}`).textContent=v||'📍';
+}
+
+function addDay(){
+  const last=cur.days[cur.days.length-1];
+  let nd='';
+  if(last?.date){ const d=new Date(last.date); d.setDate(d.getDate()+1); nd=d.toISOString().slice(0,10); }
+  cur.days.push({date:nd,title:`第${cur.days.length+1}天`,emoji:'📍',sub:'',cities:[],
+                 map:{c:[35,135],z:12,pts:[]},acts:[]});
+  markDirty(); switchTab('days');
+}
+
+function delDay(di){
+  if(!confirm(`确认删除第${di+1}天？`)) return;
+  cur.days.splice(di,1); markDirty(); switchTab('days');
+}
+
+function mvDay(di,dir){
+  const j=di+dir; if(j<0||j>=cur.days.length) return;
+  [cur.days[di],cur.days[j]]=[cur.days[j],cur.days[di]];
+  markDirty(); switchTab('days');
+}
+
+// ── Act mutations ───────────────────────────
+function updAct(di,ai,k,v){ cur.days[di].acts[ai][k]=v; markDirty(); }
+
+function addAct(di){
+  cur.days[di].acts.push({time:'',name:'',note:'',tag:'sc',icon:'📍',mapPoint:''});
+  markDirty();
+  document.getElementById(`acts-${di}`).innerHTML=
+    cur.days[di].acts.map((a,ai)=>renderActItem(a,di,ai)).join('');
+}
+
+function delAct(di,ai){
+  cur.days[di].acts.splice(ai,1); markDirty();
+  document.getElementById(`acts-${di}`).innerHTML=
+    cur.days[di].acts.map((a,ai)=>renderActItem(a,di,ai)).join('');
+}
+
+function mvAct(di,ai,dir){
+  const acts=cur.days[di].acts, j=ai+dir;
+  if(j<0||j>=acts.length) return;
+  [acts[ai],acts[j]]=[acts[j],acts[ai]]; markDirty();
+  document.getElementById(`acts-${di}`).innerHTML=
+    acts.map((a,ai)=>renderActItem(a,di,ai)).join('');
+}
+
+// ── Map / Pt mutations ──────────────────────
+function updMapC(di,idx,v){ ensureMap(di); cur.days[di].map.c[idx]=+v||0; markDirty(); }
+function updMapZ(di,v){ ensureMap(di); cur.days[di].map.z=+v||12; markDirty(); }
+function ensureMap(di){ if(!cur.days[di].map) cur.days[di].map={c:[35,135],z:12,pts:[]}; }
+
+function updPt(di,pi,k,v){ cur.days[di].map.pts[pi][k]=v; markDirty(); }
+
+function addPt(di){
+  ensureMap(di);
+  cur.days[di].map.pts.push({lb:'',lat:0,lng:0,icon:'📍'});
+  markDirty();
+  rerenderPts(di);
+}
+
+function delPt(di,pi){
+  cur.days[di].map.pts.splice(pi,1); markDirty(); rerenderPts(di);
+}
+
+function rerenderPts(di){
+  const pts=cur.days[di].map.pts||[];
+  document.getElementById(`pts-${di}`).innerHTML=pts.map((p,pi)=>`
+<div class="pt-item" id="pt-${di}-${pi}">
+  <div class="fg" style="flex:1.5"><div class="lbl">名称</div>
+    <input class="fi fi-sm" value="${esc(p.lb||'')}" placeholder="大阪城" oninput="updPt(${di},${pi},'lb',this.value)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">纬度</div>
+    <input class="fi fi-sm" value="${p.lat||''}" oninput="updPt(${di},${pi},'lat',+this.value||0)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">经度</div>
+    <input class="fi fi-sm" value="${p.lng||''}" oninput="updPt(${di},${pi},'lng',+this.value||0)"></div>
+  <div class="fg" style="width:44px;flex:none"><div class="lbl">图标</div>
+    <button class="icon-btn" id="icon-btn-pt-${di}-${pi}" onclick="openIconPicker(this,(em)=>{updPt(${di},${pi},'icon',em);document.getElementById('icon-btn-pt-${di}-${pi}').textContent=em;})">${esc(p.icon||'📍')}</button></div>
+  <button class="pt-del" onclick="delPt(${di},${pi})">✕</button>
+</div>`).join('');
+}
+
+// ── Geocoding (Nominatim) ───────────────────
+async function geocodeDay(di){
+  const btn=document.getElementById(`geo-${di}`);
+  const names=(cur.days[di].acts||[]).map(a=>a.mapPoint||'').filter(Boolean);
+  if(!names.length){ toast('⚠️ 请先在活动的"地图标注名称"填写地名'); return; }
+  btn.disabled=true; btn.textContent='🔍 查询中...';
+
+  const pts=[];
+  for(const nm of names){
+    try{
+      const url='https://nominatim.openstreetmap.org/search?'+
+        new URLSearchParams({q:nm,format:'json',limit:1,'accept-language':'ja,zh-CN,en'});
+      const r=await fetch(url);
+      const d=await r.json();
+      if(d.length) pts.push({lb:nm,lat:+d[0].lat,lng:+d[0].lon,icon:'📍'});
+      await new Promise(res=>setTimeout(res,1100));
+    }catch(e){ console.warn('geocode fail:',nm,e); }
+  }
+
+  if(pts.length){
+    ensureMap(di);
+    cur.days[di].map.pts=pts;
+    const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+    cur.days[di].map.c=[(Math.min(...lats)+Math.max(...lats))/2,(Math.min(...lngs)+Math.max(...lngs))/2];
+    const sp=Math.max(Math.max(...lats)-Math.min(...lats),Math.max(...lngs)-Math.min(...lngs));
+    cur.days[di].map.z=sp<0.02?15:sp<0.1?13:sp<0.5?12:sp<2?10:9;
+    markDirty(); rerenderPts(di);
+    toast(`✅ 成功获取 ${pts.length}/${names.length} 个坐标`);
+  } else { toast('❌ 未获取到坐标，可尝试日文或英文地名'); }
+  btn.disabled=false; btn.textContent='🔍 自动获取坐标';
+}
+
+// ══════════════════════════════════════════════
+// CHECKLIST TAB
+// ══════════════════════════════════════════════
+function renderCL(){
+  const cl=cur.checklist||[];
+  return cl.map((cat,ci)=>`
+<div class="cl-cat" id="clc-${ci}">
+  <div class="cl-cat-hdr">
+    <input class="fi" style="border:none;padding:0;font-size:14px;font-weight:700;background:none;flex:1"
+           value="${esc(cat.cat||cat.id||'')}"
+           oninput="updCat(${ci},'cat',this.value);updCat(${ci},'id',this.value)">
+    <button class="cl-cat-del" onclick="delCat(${ci})" title="删除分类">✕</button>
+  </div>
+  <div class="cl-items" id="cli-${ci}">
+    ${(cat.items||[]).map((item,ii)=>renderCLItem(item,ci,ii)).join('')}
+  </div>
+  <button class="add-cli" onclick="addCLItem(${ci})">+ 添加事项</button>
+</div>`).join('')+
+  `<button class="add-cat" onclick="addCat()">+ 添加分类</button>`;
+}
+
+function renderCLItem(item,ci,ii){
+  return `<div class="cl-row">
+    <input class="fi" style="border:none;padding:0;font-size:13px;background:none;flex:1"
+           value="${esc(item.text||'')}" oninput="updCLItem(${ci},${ii},'text',this.value)">
+    <button class="cl-idel" onclick="delCLItem(${ci},${ii})">✕</button>
+  </div>`;
+}
+
+function updCat(ci,k,v){ cur.checklist[ci][k]=v; markDirty(); }
+function updCLItem(ci,ii,k,v){ cur.checklist[ci].items[ii][k]=v; markDirty(); }
+
+function addCat(){
+  cur.checklist=cur.checklist||[];
+  const id='分类'+(cur.checklist.length+1);
+  cur.checklist.push({id,cat:id,items:[]}); markDirty(); switchTab('cl');
+}
+
+function delCat(ci){
+  if(!confirm('删除整个分类？')) return;
+  cur.checklist.splice(ci,1); markDirty(); switchTab('cl');
+}
+
+function addCLItem(ci){
+  cur.checklist[ci].items.push({id:'i'+Date.now(),text:'新事项',done:false});
+  markDirty();
+  document.getElementById(`cli-${ci}`).innerHTML=
+    cur.checklist[ci].items.map((item,ii)=>renderCLItem(item,ci,ii)).join('');
+}
+
+function delCLItem(ci,ii){
+  cur.checklist[ci].items.splice(ii,1); markDirty();
+  document.getElementById(`cli-${ci}`).innerHTML=
+    cur.checklist[ci].items.map((item,ii)=>renderCLItem(item,ci,ii)).join('');
+}
+
+// ══════════════════════════════════════════════
+// GITHUB MODAL
+// ══════════════════════════════════════════════
+function openGHModal(){
+  const c=ghCfg()||{};
+  // Auto-detect from URL if on GitHub Pages
+  const m=location.hostname.match(/^([^.]+)\.github\.io$/);
+  const autoOwner=m?m[1]:'';
+  const autoRepo=m?(location.pathname.replace(/^\//,'').split('/')[0]||''):'';
+  document.getElementById('gh-owner').value=c.owner||autoOwner;
+  document.getElementById('gh-repo').value=c.repo||autoRepo;
+  document.getElementById('gh-token').value=c.token||'';
+  showMsg('gh-msg','','');
+  document.getElementById('gh-mo').classList.add('show');
+}
+function closeGHModal(){ document.getElementById('gh-mo').classList.remove('show'); }
+
+async function testGH(){
+  const owner=document.getElementById('gh-owner').value.trim();
+  const repo =document.getElementById('gh-repo').value.trim();
+  const token=document.getElementById('gh-token').value.trim();
+  if(!owner||!repo||!token){ showMsg('gh-msg','err','请填写所有字段'); return; }
+
+  const hdrs={'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'};
+
+  try{
+    // ── 步骤1：确认仓库可访问 ──────────────────────────────
+    showMsg('gh-msg','','⏳ 检查仓库...');
+    const r=await fetch(`https://api.github.com/repos/${owner}/${repo}`,{headers:hdrs});
+    if(!r.ok){
+      const e=await r.json().catch(()=>({message:'HTTP '+r.status}));
+      const hint = r.status===404 ? '（仓库不存在或无权访问）'
+                 : r.status===401 ? '（Token 无效或已过期）' : '';
+      showMsg('gh-msg','err',`❌ ${e.message} ${hint}`); return;
+    }
+    const info=await r.json();
+
+    // ── 步骤2：测试写入权限（写一个标记文件再检查）──────────
+    showMsg('gh-msg','','⏳ 检查写入权限...');
+    const markPath='.tripgogo-sync-check';
+    const markB64=btoa(JSON.stringify({by:'TripGoGo',owner}));
+
+    // 先看标记文件是否存在（需要 sha 才能更新）
+    let markSha;
+    const chk=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${markPath}`,{headers:hdrs});
+    if(chk.ok) markSha=(await chk.json()).sha;
+
+    const putBody={message:'TripGoGo sync check',content:markB64};
+    if(markSha) putBody.sha=markSha;
+    const putR=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${markPath}`,
+      {method:'PUT',headers:hdrs,body:JSON.stringify(putBody)});
+
+    if(!putR.ok){
+      const e=await putR.json().catch(()=>({message:'HTTP '+putR.status}));
+      const hint = putR.status===403 ? '请确认 PAT 包含 Contents: Read and write 权限（细粒度PAT）或 repo / public_repo 权限（经典PAT）'
+                 : putR.status===401 ? 'Token 无效或已过期，请重新生成' : '';
+      showMsg('gh-msg','err',`❌ 写入失败: ${e.message}。${hint}`); return;
+    }
+
+    // ── 成功 ────────────────────────────────────────────────
+    ghSave({owner,repo,token});
+    showMsg('gh-msg','ok',`✅ 验证成功！${info.full_name} · 读写正常`);
+    sdot('ok');
+    setTimeout(()=>{ closeGHModal(); loadIndex(); },1400);
+
+  }catch(e){ showMsg('gh-msg','err','❌ 网络错误: '+e.message); }
+}
+
+function showMsg(id,type,txt){
+  const el=document.getElementById(id);
+  el.textContent=txt; el.className='mo-msg'+(type?' '+type:'');
+  el.style.display=txt?'block':'none';
+}
+
+// ══════════════════════════════════════════════
+// DATE PICKER
+// ══════════════════════════════════════════════
+const DP_YEARS = [2025,2026,2027,2028];
+
+function mkDatePicker(val, di){
+  const parts = (val||'').split('-');
+  const y=parts[0]||'', m=parts[1]||'', d=parts[2]||'';
+  const yOpts = '<option value="">年</option>' + DP_YEARS.map(yr=>
+    `<option value="${yr}"${y==yr?' selected':''}>${yr}</option>`).join('');
+  const mOpts = '<option value="">月</option>' + Array.from({length:12},(_,i)=>{
+    const mv=String(i+1).padStart(2,'0');
+    return `<option value="${mv}"${m==mv?' selected':''}>${i+1}月</option>`;
+  }).join('');
+  const maxD = (y&&m) ? new Date(+y,+m,0).getDate() : 31;
+  const dOpts = '<option value="">日</option>' + Array.from({length:maxD},(_,i)=>{
+    const dv=String(i+1).padStart(2,'0');
+    return `<option value="${dv}"${d==dv?' selected':''}>${i+1}日</option>`;
+  }).join('');
+  return `<div class="date-pick" id="dp-day-${di}">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(${di})">${yOpts}</select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(${di})">${mOpts}</select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(${di})">${dOpts}</select>
+  </div>`;
+}
+
+function dpDayChg(di){
+  const c=document.getElementById('dp-day-'+di); if(!c) return;
+  const y=c.querySelector('.dp-y').value;
+  const m=c.querySelector('.dp-m').value;
+  const dSel=c.querySelector('.dp-d');
+  const curD=dSel.value;
+  // 更新日期下拉（处理大月小月）
+  if(y&&m){
+    const maxD=new Date(+y,+m,0).getDate();
+    dSel.innerHTML='<option value="">日</option>'+Array.from({length:maxD},(_,i)=>{
+      const dv=String(i+1).padStart(2,'0');
+      return `<option value="${dv}"${curD==dv?' selected':''}>${i+1}日</option>`;
+    }).join('');
+  }
+  const d=dSel.value;
+  if(y&&m&&d) updDay(di,'date',`${y}-${m}-${d}`);
+}
+
+function getModalDate(){
+  const y=document.getElementById('ns-y')?.value||'';
+  const m=document.getElementById('ns-m')?.value||'';
+  const d=document.getElementById('ns-d')?.value||'';
+  return (y&&m&&d)?`${y}-${m}-${d}`:'';
+}
+
+// ══════════════════════════════════════════════
+// ICON PICKER
+// ══════════════════════════════════════════════
+const ICONS = {
+  '交通': ['✈️','🚄','🚃','🚌','🚠','🚁','🚢','🛳️','🛵','🚗','🚕','🏍️','⛽','🅿️'],
+  '美食': ['🍜','🍣','🍱','🍛','🍝','🥩','🦞','🐟','🍷','🍺','☕','🧋','🍦','🎂','🍰','🍡'],
+  '景点': ['⛩️','🏯','🏛️','🗼','🌊','🌄','🌉','🏔️','🌿','🏖️','🎑','🌃','🏝️','🗺️','🌋','🎭'],
+  '住宿': ['🏨','🛏️','🏕️','🏡','🛖','🏰'],
+  '购物': ['🛍️','🛒','💊','🧴','💝','👟','🧸','📷'],
+  '活动': ['🎆','🎋','♨️','🥾','📦','🎠','🎡','🎪','🎯','🏄','🎿','⛷️','🎣','🏊'],
+  '自然': ['🌸','🍁','🌺','🌙','⭐','🌈','❄️','🌞','🌊','🌿','🍀','🦋','🦅','🐬'],
+  '其他': ['📍','📌','🗓️','💰','🔑','🎫','🎒','💺','📱','📷','🔭','🪄','🎁','❤️'],
+};
+let _ipCurCat = '交通';
+let _ipCb = null;
+
+function openIconPicker(btn, cb){
+  _ipCb = cb;
+  // 渲染分类标签
+  document.getElementById('ip-cats').innerHTML = Object.keys(ICONS).map(c=>
+    `<button class="ip-cat${c===_ipCurCat?' on':''}" onclick="ipSetCat('${c}')">${c}</button>`
+  ).join('');
+  renderIpGrid();
+  // 定位弹窗
+  const pk=document.getElementById('icon-picker');
+  const rect=btn.getBoundingClientRect();
+  const pw=274, ph=220;
+  let top=rect.bottom+6, left=rect.left;
+  if(top+ph>window.innerHeight) top=rect.top-ph-6;
+  if(left+pw>window.innerWidth) left=window.innerWidth-pw-8;
+  pk.style.top=Math.max(4,top)+'px';
+  pk.style.left=Math.max(4,left)+'px';
+  pk.classList.add('show');
+  document.getElementById('ip-overlay').classList.add('show');
+}
+
+function renderIpGrid(){
+  document.getElementById('ip-grid').innerHTML=(ICONS[_ipCurCat]||[]).map(em=>
+    `<button class="ip-em" onclick="pickIcon('${em}')">${em}</button>`
+  ).join('');
+}
+
+function ipSetCat(cat){
+  _ipCurCat=cat;
+  document.querySelectorAll('.ip-cat').forEach(el=>el.classList.toggle('on',el.textContent===cat));
+  renderIpGrid();
+}
+
+function pickIcon(em){
+  if(_ipCb) _ipCb(em);
+  closeIconPicker();
+}
+
+function closeIconPicker(){
+  document.getElementById('icon-picker').classList.remove('show');
+  document.getElementById('ip-overlay').classList.remove('show');
+  _ipCb=null;
+}
+
+// ══════════════════════════════════════════════
+// UTIL
+// ══════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+if(ghCfg()) sdot('ok');
+loadIndex();
+</script>
+</body>
+</html>
