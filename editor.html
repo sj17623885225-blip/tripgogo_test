@@ -981,7 +981,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
       <div class="mb-lbl">Personal Access Token (PAT) <a href="https://github.com/settings/tokens" target="_blank">如何获取 →</a></div>
       <input class="fi" id="gh-token" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off">
     </div>
-    <div class="mo-msg" id="gh-msg" style="display: none;"></div>
+    <div class="mo-msg ok" id="gh-msg" style="display: block;">✅ 验证成功！sj17623885225-blip/tripgogo_test · 读写正常</div>
     <div class="ma">
       <button class="mbtn cancel" onclick="closeGHModal()">取消</button>
       <button class="mbtn ok" onclick="testGH()">验证并保存</button>
@@ -1045,7 +1045,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
   </div>
 </div>
 
-<div id="toast" class="">✅ 已导出为独立 HTML</div>
+<div id="toast" class="">⚠️ 文件名不是 index.html，请确认</div>
 
 <!-- Deploy Modal -->
 <div class="mo show" id="deploy-mo">
@@ -2161,4 +2161,4 @@ loadIndex();
 </script>
 
 
-</body></html>
+<input type="file" accept=".html" style="display: none;"></body></html>
