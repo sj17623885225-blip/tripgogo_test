@@ -190,7 +190,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
 <!-- Nav -->
 <nav class="nav">
   <div class="nav-logo">Trip<em>Go</em>Go <span class="nav-pill">编辑器</span></div>
-  <span class="save-ind" id="save-ind">已保存</span>
+  <span class="save-ind dirty" id="save-ind">有未保存修改</span>
   <span class="sdot ok" id="sdot"></span>
   <button class="nbtn ghost" onclick="openDeployModal()">🚀 部署</button>
   <button class="nbtn ghost" onclick="openGHModal()">⚙️ 云同步</button>
@@ -207,7 +207,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
       <button class="sb-new" onclick="newTripModal()" title="新建">+</button>
     </div>
     <div class="trip-list" id="trip-list">
-    <div class="ti on" onclick="loadTrip('11-cx4k')">
+    <div class="ti " onclick="loadTrip('11-cx4k')">
       <div style="flex:1;min-width:0">
         <div class="ti-name">11</div>
         <div class="ti-dates">9/30 – 10/6</div>
@@ -220,53 +220,746 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
         <div class="ti-dates">9/30 – 10/7</div>
       </div>
       <span class="ti-del" onclick="event.stopPropagation();delTrip('test11-m75u')" title="删除">🗑</span>
+    </div>
+    <div class="ti on" onclick="loadTrip('2026-test-83ti')">
+      <div style="flex:1;min-width:0">
+        <div class="ti-name">2026国庆_test</div>
+        <div class="ti-dates">9/30 – 10/7</div>
+      </div>
+      <span class="ti-del" onclick="event.stopPropagation();delTrip('2026-test-83ti')" title="删除">🗑</span>
     </div></div>
   </aside>
 
   <!-- Main panel -->
   <main class="main">
     <div class="main-tabs" id="main-tabs" style="display: flex;">
-      <div class="mtab on" onclick="switchTab('meta')" data-t="meta">基本信息</div>
-      <div class="mtab" onclick="switchTab('days')" data-t="days">行程详情</div>
+      <div class="mtab" onclick="switchTab('meta')" data-t="meta">基本信息</div>
+      <div class="mtab on" onclick="switchTab('days')" data-t="days">行程详情</div>
       <div class="mtab" onclick="switchTab('cl')" data-t="cl">行前清单</div>
     </div>
-    <div class="mc" id="mc">
-<div class="sec">
-  <div class="sec-title">基本信息</div>
-  <div class="fr">
-    <div class="fg" style="min-width:200px">
-      <div class="lbl">行程名称 *</div>
-      <input class="fi" value="11" oninput="updMeta('name',this.value)">
+    <div class="mc" id="mc"><button class="add-day" onclick="addDay()">+ 添加新的一天</button>
+<div class="day-card" id="dc-0">
+  <div class="dc-hdr" onclick="toggleDay(0)">
+    <span class="dc-em" id="dcem-0">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-0">2026-09-30 · Day 1</div>
+      <div class="dc-t" id="dct-0">第1天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(0,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(0,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(0)">✕</button>
     </div>
   </div>
-  <div class="fr">
-    <div class="fg">
-      <div class="lbl">英文副标题</div>
-      <input class="fi" value="" placeholder="OSAKA · KYOTO · KOBE" oninput="updMeta('en_subtitle',this.value)">
-    </div>
+  <div class="dc-body open" id="dcb-0">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-0">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(0)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(0)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09" selected="">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(0)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30" selected="">30日</option></select>
   </div>
-  <div class="fr">
-    <div class="fg" style="min-width:110px">
-      <div class="lbl">日期区间</div>
-      <input class="fi" value="9/30 – 10/6" placeholder="9/30 – 10/7" oninput="updMeta('date_range',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第1天" oninput="updDay(0,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-0" onclick="openIconPicker(this,(em)=&gt;{updDay(0,'emoji',em);document.getElementById('icon-btn-day-0').textContent=em;document.getElementById('dcem-0').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(0,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(0,'sub',this.value)">
+      </div>
     </div>
-    <div class="fg" style="min-width:90px">
-      <div class="lbl">天数/夜数</div>
-      <input class="fi" value="7天6夜" placeholder="8天7夜" oninput="updMeta('nights',this.value)">
-    </div>
-    <div class="fg" style="min-width:90px">
-      <div class="lbl">航空公司</div>
-      <input class="fi" value="" placeholder="吉祥航空" oninput="updMeta('airline',this.value)">
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-0">
+<div class="act-item" id="act-0-0">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="08:20" placeholder="09:00" oninput="updAct(0,0,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="起飞" placeholder="参观天守阁" oninput="updAct(0,0,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="HO1505 吉祥航空 08:20-11:40" placeholder="门票¥800，需提前预约" oninput="updAct(0,0,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,0,'tag',this.value)"><option value="tr">tr-交通</option><option value="fd">fd-美食</option><option value="sc" selected="">sc-景点</option><option value="ht">ht-住宿</option><option value="fw">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-0" onclick="openIconPicker(this,(em)=&gt;{updAct(0,0,'icon',em);document.getElementById('icon-btn-act-0-0').textContent=em;})">✈️</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="上海浦东国际机场T2" placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,0,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,0,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,0,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,0)">删除</button>
+  </div>
+</div>
+<div class="act-item" id="act-0-1">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="14:00" placeholder="09:00" oninput="updAct(0,1,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="关西机场→京都站" placeholder="参观天守阁" oninput="updAct(0,1,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="搭乘JR特急HARUKA，约80分钟直达京都站，无需换乘 可先买ICOCA/关西周游券" placeholder="门票¥800，需提前预约" oninput="updAct(0,1,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,1,'tag',this.value)"><option value="tr" selected="">tr-交通</option><option value="fd">fd-美食</option><option value="sc">sc-景点</option><option value="ht">ht-住宿</option><option value="fw">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-1" onclick="openIconPicker(this,(em)=&gt;{updAct(0,1,'icon',em);document.getElementById('icon-btn-act-0-1').textContent=em;})">🚄</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="" placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,1,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,1,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,1,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,1)">删除</button>
+  </div>
+</div>
+<div class="act-item" id="act-0-2">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="16:00" placeholder="09:00" oninput="updAct(0,2,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="酒店check in" placeholder="参观天守阁" oninput="updAct(0,2,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="市巴士 4/17/205 → 四条河原町，步行5min (酒店电话：0081-75-3530101)" placeholder="门票¥800，需提前预约" oninput="updAct(0,2,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,2,'tag',this.value)"><option value="tr">tr-交通</option><option value="fd">fd-美食</option><option value="sc">sc-景点</option><option value="ht" selected="">ht-住宿</option><option value="fw">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-2" onclick="openIconPicker(this,(em)=&gt;{updAct(0,2,'icon',em);document.getElementById('icon-btn-act-0-2').textContent=em;})">📍</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="Hotel Traveltine Kyoto Kiyamachi " placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,2,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,2,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,2,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,2)">删除</button>
+  </div>
+</div>
+<div class="act-item" id="act-0-3">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="17:00" placeholder="09:00" oninput="updAct(0,3,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="锦市场" placeholder="参观天守阁" oninput="updAct(0,3,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="溜达" placeholder="门票¥800，需提前预约" oninput="updAct(0,3,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,3,'tag',this.value)"><option value="tr">tr-交通</option><option value="fd">fd-美食</option><option value="sc">sc-景点</option><option value="ht">ht-住宿</option><option value="fw" selected="">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-3" onclick="openIconPicker(this,(em)=&gt;{updAct(0,3,'icon',em);document.getElementById('icon-btn-act-0-3').textContent=em;})">🥾</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="锦市场" placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,3,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,3,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,3,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,3)">删除</button>
+  </div>
+</div>
+<div class="act-item" id="act-0-4">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="18:00" placeholder="09:00" oninput="updAct(0,4,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="晚餐" placeholder="参观天守阁" oninput="updAct(0,4,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="四条河原町或先斗町一带用餐 京都料理/居酒屋" placeholder="门票¥800，需提前预约" oninput="updAct(0,4,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,4,'tag',this.value)"><option value="tr">tr-交通</option><option value="fd" selected="">fd-美食</option><option value="sc">sc-景点</option><option value="ht">ht-住宿</option><option value="fw">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-4" onclick="openIconPicker(this,(em)=&gt;{updAct(0,4,'icon',em);document.getElementById('icon-btn-act-0-4').textContent=em;})">🍜</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="四条河原町" placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,4,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,4,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,4,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,4)">删除</button>
+  </div>
+</div>
+<div class="act-item" id="act-0-5">
+  <div class="ar1">
+    <div class="a-time"><div class="lbl">时间</div>
+      <input class="fi fi-sm" value="" placeholder="09:00" oninput="updAct(0,5,'time',this.value)"></div>
+    <div class="a-name"><div class="lbl">活动名称 *</div>
+      <input class="fi fi-sm" value="" placeholder="参观天守阁" oninput="updAct(0,5,'name',this.value)"></div>
+  </div>
+  <div class="ar2">
+    <div class="a-note"><div class="lbl">备注</div>
+      <input class="fi fi-sm" value="" placeholder="门票¥800，需提前预约" oninput="updAct(0,5,'note',this.value)"></div>
+    <div class="a-tag"><div class="lbl">类型</div>
+      <select class="fi fi-sm" onchange="updAct(0,5,'tag',this.value)"><option value="tr">tr-交通</option><option value="fd">fd-美食</option><option value="sc" selected="">sc-景点</option><option value="ht">ht-住宿</option><option value="fw">fw-活动</option></select></div>
+    <div class="a-icon"><div class="lbl">图标</div>
+      <button class="icon-btn" id="icon-btn-act-0-5" onclick="openIconPicker(this,(em)=&gt;{updAct(0,5,'icon',em);document.getElementById('icon-btn-act-0-5').textContent=em;})">📍</button></div>
+    <div class="a-mappt"><div class="lbl">地图标注名称（用于自动获取坐标）</div>
+      <input class="fi fi-sm" value="" placeholder="大阪城（日文/英文更准确）" oninput="updAct(0,5,'mapPoint',this.value)"></div>
+  </div>
+  <div class="act-foot">
+    <button class="abtn mv" onclick="mvAct(0,5,-1)">↑</button>
+    <button class="abtn mv" onclick="mvAct(0,5,1)">↓</button>
+    <button class="abtn del" onclick="delAct(0,5)">删除</button>
+  </div>
+</div></div>
+    <button class="add-act" onclick="addAct(0)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-0" onclick="geocodeDay(0)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(0,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(0,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(0,this.value)">
+        </div>
+      </div>
+      <div id="pts-0">
+<div class="pt-item" id="pt-0-0">
+  <div class="fg" style="flex:1.5"><div class="lbl">名称</div>
+    <input class="fi fi-sm" value="锦市场" placeholder="大阪城" oninput="updPt(0,0,'lb',this.value)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">纬度</div>
+    <input class="fi fi-sm" value="35.0050244" oninput="updPt(0,0,'lat',+this.value||0)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">经度</div>
+    <input class="fi fi-sm" value="135.7655699" oninput="updPt(0,0,'lng',+this.value||0)"></div>
+  <div class="fg" style="width:44px;flex:none"><div class="lbl">图标</div>
+    <button class="icon-btn" id="icon-btn-pt-0-0" onclick="openIconPicker(this,(em)=&gt;{updPt(0,0,'icon',em);document.getElementById('icon-btn-pt-0-0').textContent=em;})">📍</button></div>
+  <button class="pt-del" onclick="delPt(0,0)">✕</button>
+</div>
+<div class="pt-item" id="pt-0-1">
+  <div class="fg" style="flex:1.5"><div class="lbl">名称</div>
+    <input class="fi fi-sm" value="四条河原町" placeholder="大阪城" oninput="updPt(0,1,'lb',this.value)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">纬度</div>
+    <input class="fi fi-sm" value="35.0037796" oninput="updPt(0,1,'lat',+this.value||0)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">经度</div>
+    <input class="fi fi-sm" value="135.76932" oninput="updPt(0,1,'lng',+this.value||0)"></div>
+  <div class="fg" style="width:44px;flex:none"><div class="lbl">图标</div>
+    <button class="icon-btn" id="icon-btn-pt-0-1" onclick="openIconPicker(this,(em)=&gt;{updPt(0,1,'icon',em);document.getElementById('icon-btn-pt-0-1').textContent=em;})">📍</button></div>
+  <button class="pt-del" onclick="delPt(0,1)">✕</button>
+</div>
+<div class="pt-item" id="pt-0-2">
+  <div class="fg" style="flex:1.5"><div class="lbl">名称</div>
+    <input class="fi fi-sm" value="鸭川" placeholder="大阪城" oninput="updPt(0,2,'lb',this.value)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">纬度</div>
+    <input class="fi fi-sm" value="35.047393" oninput="updPt(0,2,'lat',+this.value||0)"></div>
+  <div class="fg" style="width:82px;flex:none"><div class="lbl">经度</div>
+    <input class="fi fi-sm" value="135.760253" oninput="updPt(0,2,'lng',+this.value||0)"></div>
+  <div class="fg" style="width:44px;flex:none"><div class="lbl">图标</div>
+    <button class="icon-btn" id="icon-btn-pt-0-2" onclick="openIconPicker(this,(em)=&gt;{updPt(0,2,'icon',em);document.getElementById('icon-btn-pt-0-2').textContent=em;})">📍</button></div>
+  <button class="pt-del" onclick="delPt(0,2)">✕</button>
+</div></div>
+      <button class="add-pt" onclick="addPt(0)">+ 添加标注点</button>
     </div>
   </div>
 </div>
-<div class="hint">
-  <div class="hint-title">💡 使用说明</div>
-  <p>1. 在<b>基本信息</b>填写行程名称、日期等概要<br>
-  2. 在<b>行程详情</b>添加每日活动；每个活动可填写"地图标注名称"，然后点"自动获取坐标"<br>
-  3. 在<b>行前清单</b>管理出发前要准备的事项<br>
-  4. 点击 <b>💾 保存</b> 提交至 GitHub，点击 <b>👁 预览</b> 查看展示效果<br>
-  5. 点击 <b>📥 导出</b> 下载独立 HTML（无需 GitHub 也可分享）</p>
+<div class="day-card" id="dc-1">
+  <div class="dc-hdr" onclick="toggleDay(1)">
+    <span class="dc-em" id="dcem-1">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-1">2026-10-01 · Day 2</div>
+      <div class="dc-t" id="dct-1">第2天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(1,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(1,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(1)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-1">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-1">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(1)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(1)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(1)"><option value="">日</option><option value="01" selected="">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第2天" oninput="updDay(1,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-1" onclick="openIconPicker(this,(em)=&gt;{updDay(1,'emoji',em);document.getElementById('icon-btn-day-1').textContent=em;document.getElementById('dcem-1').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(1,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(1,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-1"></div>
+    <button class="add-act" onclick="addAct(1)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-1" onclick="geocodeDay(1)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(1,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(1,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(1,this.value)">
+        </div>
+      </div>
+      <div id="pts-1"></div>
+      <button class="add-pt" onclick="addPt(1)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-2">
+  <div class="dc-hdr" onclick="toggleDay(2)">
+    <span class="dc-em" id="dcem-2">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-2">2026-10-02 · Day 3</div>
+      <div class="dc-t" id="dct-2">第3天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(2,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(2,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(2)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-2">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-2">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(2)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(2)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(2)"><option value="">日</option><option value="01">1日</option><option value="02" selected="">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第3天" oninput="updDay(2,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-2" onclick="openIconPicker(this,(em)=&gt;{updDay(2,'emoji',em);document.getElementById('icon-btn-day-2').textContent=em;document.getElementById('dcem-2').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(2,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(2,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-2"></div>
+    <button class="add-act" onclick="addAct(2)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-2" onclick="geocodeDay(2)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(2,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(2,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(2,this.value)">
+        </div>
+      </div>
+      <div id="pts-2"></div>
+      <button class="add-pt" onclick="addPt(2)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-3">
+  <div class="dc-hdr" onclick="toggleDay(3)">
+    <span class="dc-em" id="dcem-3">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-3">2026-10-03 · Day 4</div>
+      <div class="dc-t" id="dct-3">第4天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(3,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(3,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(3)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-3">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-3">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(3)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(3)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(3)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03" selected="">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第4天" oninput="updDay(3,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-3" onclick="openIconPicker(this,(em)=&gt;{updDay(3,'emoji',em);document.getElementById('icon-btn-day-3').textContent=em;document.getElementById('dcem-3').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(3,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(3,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-3"></div>
+    <button class="add-act" onclick="addAct(3)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-3" onclick="geocodeDay(3)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(3,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(3,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(3,this.value)">
+        </div>
+      </div>
+      <div id="pts-3"></div>
+      <button class="add-pt" onclick="addPt(3)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-4">
+  <div class="dc-hdr" onclick="toggleDay(4)">
+    <span class="dc-em" id="dcem-4">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-4">2026-10-04 · Day 5</div>
+      <div class="dc-t" id="dct-4">第5天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(4,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(4,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(4)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-4">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-4">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(4)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(4)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(4)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04" selected="">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第5天" oninput="updDay(4,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-4" onclick="openIconPicker(this,(em)=&gt;{updDay(4,'emoji',em);document.getElementById('icon-btn-day-4').textContent=em;document.getElementById('dcem-4').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(4,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(4,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-4"></div>
+    <button class="add-act" onclick="addAct(4)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-4" onclick="geocodeDay(4)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(4,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(4,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(4,this.value)">
+        </div>
+      </div>
+      <div id="pts-4"></div>
+      <button class="add-pt" onclick="addPt(4)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-5">
+  <div class="dc-hdr" onclick="toggleDay(5)">
+    <span class="dc-em" id="dcem-5">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-5">2026-10-05 · Day 6</div>
+      <div class="dc-t" id="dct-5">第6天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(5,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(5,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(5)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-5">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-5">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(5)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(5)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(5)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05" selected="">5日</option><option value="06">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第6天" oninput="updDay(5,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-5" onclick="openIconPicker(this,(em)=&gt;{updDay(5,'emoji',em);document.getElementById('icon-btn-day-5').textContent=em;document.getElementById('dcem-5').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(5,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(5,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-5"></div>
+    <button class="add-act" onclick="addAct(5)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-5" onclick="geocodeDay(5)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(5,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(5,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(5,this.value)">
+        </div>
+      </div>
+      <div id="pts-5"></div>
+      <button class="add-pt" onclick="addPt(5)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-6">
+  <div class="dc-hdr" onclick="toggleDay(6)">
+    <span class="dc-em" id="dcem-6">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-6">2026-10-06 · Day 7</div>
+      <div class="dc-t" id="dct-6">第7天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(6,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(6,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(6)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-6">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-6">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(6)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(6)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(6)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06" selected="">6日</option><option value="07">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第7天" oninput="updDay(6,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-6" onclick="openIconPicker(this,(em)=&gt;{updDay(6,'emoji',em);document.getElementById('icon-btn-day-6').textContent=em;document.getElementById('dcem-6').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(6,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(6,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-6"></div>
+    <button class="add-act" onclick="addAct(6)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-6" onclick="geocodeDay(6)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(6,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(6,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(6,this.value)">
+        </div>
+      </div>
+      <div id="pts-6"></div>
+      <button class="add-pt" onclick="addPt(6)">+ 添加标注点</button>
+    </div>
+  </div>
+</div>
+<div class="day-card" id="dc-7">
+  <div class="dc-hdr" onclick="toggleDay(7)">
+    <span class="dc-em" id="dcem-7">📍</span>
+    <div class="dc-info">
+      <div class="dc-d" id="dcd-7">2026-10-07 · Day 8</div>
+      <div class="dc-t" id="dct-7">第8天</div>
+    </div>
+    <div class="dc-btns" onclick="event.stopPropagation()">
+      <button class="dc-btn" onclick="mvDay(7,-1)">↑</button>
+      <button class="dc-btn" onclick="mvDay(7,1)">↓</button>
+      <button class="dc-btn del" onclick="delDay(7)">✕</button>
+    </div>
+  </div>
+  <div class="dc-body" id="dcb-7">
+    <div class="day-grid">
+      <div class="fg">
+        <div class="lbl">日期</div>
+        <div class="date-pick" id="dp-day-7">
+    <select class="fi fi-sm dp-y" onchange="dpDayChg(7)"><option value="">年</option><option value="2025">2025</option><option value="2026" selected="">2026</option><option value="2027">2027</option><option value="2028">2028</option></select>
+    <select class="fi fi-sm dp-m" onchange="dpDayChg(7)"><option value="">月</option><option value="01">1月</option><option value="02">2月</option><option value="03">3月</option><option value="04">4月</option><option value="05">5月</option><option value="06">6月</option><option value="07">7月</option><option value="08">8月</option><option value="09">9月</option><option value="10" selected="">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    <select class="fi fi-sm dp-d" onchange="dpDayChg(7)"><option value="">日</option><option value="01">1日</option><option value="02">2日</option><option value="03">3日</option><option value="04">4日</option><option value="05">5日</option><option value="06">6日</option><option value="07" selected="">7日</option><option value="08">8日</option><option value="09">9日</option><option value="10">10日</option><option value="11">11日</option><option value="12">12日</option><option value="13">13日</option><option value="14">14日</option><option value="15">15日</option><option value="16">16日</option><option value="17">17日</option><option value="18">18日</option><option value="19">19日</option><option value="20">20日</option><option value="21">21日</option><option value="22">22日</option><option value="23">23日</option><option value="24">24日</option><option value="25">25日</option><option value="26">26日</option><option value="27">27日</option><option value="28">28日</option><option value="29">29日</option><option value="30">30日</option><option value="31">31日</option></select>
+  </div>
+      </div>
+      <div class="fg">
+        <div class="lbl">主题标题 *</div>
+        <input class="fi fi-sm" value="第8天" oninput="updDay(7,'title',this.value)">
+      </div>
+      <div class="fg">
+        <div class="lbl">主题图标</div>
+        <button class="icon-btn lg" id="icon-btn-day-7" onclick="openIconPicker(this,(em)=&gt;{updDay(7,'emoji',em);document.getElementById('icon-btn-day-7').textContent=em;document.getElementById('dcem-7').textContent=em;})">📍</button>
+      </div>
+      <div class="fg">
+        <div class="lbl">经过城市（逗号分隔）</div>
+        <input class="fi fi-sm" value="" placeholder="大阪,京都" oninput="updDay(7,'cities',this.value.split(',').map(c=&gt;c.trim()).filter(Boolean))">
+      </div>
+      <div class="fg" style="grid-column:span 2">
+        <div class="lbl">副标题 / 路线概要</div>
+        <input class="fi fi-sm" value="" placeholder="今日路线概要" oninput="updDay(7,'sub',this.value)">
+      </div>
+    </div>
+
+    <div class="acts-bar"><span>📋 活动列表</span></div>
+    <div id="acts-7"></div>
+    <button class="add-act" onclick="addAct(7)">+ 添加活动</button>
+
+    <div class="map-sec">
+      <div class="map-bar">
+        <span>🗺 地图标注</span>
+        <button class="geo-btn" id="geo-7" onclick="geocodeDay(7)">🔍 自动获取坐标</button>
+      </div>
+      <div class="mc-row">
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心纬度</div>
+          <input class="fi fi-sm" value="35" oninput="updMapC(7,0,this.value)">
+        </div>
+        <div class="fg" style="width:120px;flex:none">
+          <div class="lbl">中心经度</div>
+          <input class="fi fi-sm" value="135" oninput="updMapC(7,1,this.value)">
+        </div>
+        <div class="fg" style="width:70px;flex:none">
+          <div class="lbl">缩放(8-18)</div>
+          <input class="fi fi-sm" type="number" min="8" max="18" value="12" oninput="updMapZ(7,this.value)">
+        </div>
+      </div>
+      <div id="pts-7"></div>
+      <button class="add-pt" onclick="addPt(7)">+ 添加标注点</button>
+    </div>
+  </div>
 </div></div>
   </main>
 </div>
@@ -288,7 +981,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
       <div class="mb-lbl">Personal Access Token (PAT) <a href="https://github.com/settings/tokens" target="_blank">如何获取 →</a></div>
       <input class="fi" id="gh-token" type="password" placeholder="ghp_xxxxxxxx" autocomplete="off">
     </div>
-    <div class="mo-msg" id="gh-msg"></div>
+    <div class="mo-msg" id="gh-msg" style="display: none;"></div>
     <div class="ma">
       <button class="mbtn cancel" onclick="closeGHModal()">取消</button>
       <button class="mbtn ok" onclick="testGH()">验证并保存</button>
@@ -344,7 +1037,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
         <input class="fi" id="new-ndays" type="number" min="1" max="30" value="7">
       </div>
     </div>
-    <div class="mo-msg" id="new-msg"></div>
+    <div class="mo-msg" id="new-msg" style="display: none;"></div>
     <div class="ma">
       <button class="mbtn cancel" onclick="closeNewModal()">取消</button>
       <button class="mbtn ok" onclick="createTrip()">创建</button>
@@ -352,7 +1045,7 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
   </div>
 </div>
 
-<div id="toast" class="">⚠️ 文件名不是 index.html，请确认</div>
+<div id="toast" class="">✅ 已导出为独立 HTML</div>
 
 <!-- Deploy Modal -->
 <div class="mo show" id="deploy-mo">
@@ -376,10 +1069,10 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
 </div>
 
 <!-- Icon Picker -->
-<div id="ip-overlay" onclick="closeIconPicker()"></div>
-<div id="icon-picker">
-  <div class="ip-cats" id="ip-cats"></div>
-  <div class="ip-grid" id="ip-grid"></div>
+<div id="ip-overlay" onclick="closeIconPicker()" class=""></div>
+<div id="icon-picker" class="" style="top: 461px; left: 1075.5px;">
+  <div class="ip-cats" id="ip-cats"><button class="ip-cat" onclick="ipSetCat('交通')">交通</button><button class="ip-cat on" onclick="ipSetCat('美食')">美食</button><button class="ip-cat" onclick="ipSetCat('景点')">景点</button><button class="ip-cat" onclick="ipSetCat('住宿')">住宿</button><button class="ip-cat" onclick="ipSetCat('购物')">购物</button><button class="ip-cat" onclick="ipSetCat('活动')">活动</button><button class="ip-cat" onclick="ipSetCat('自然')">自然</button><button class="ip-cat" onclick="ipSetCat('其他')">其他</button></div>
+  <div class="ip-grid" id="ip-grid"><button class="ip-em" onclick="pickIcon('🍜')">🍜</button><button class="ip-em" onclick="pickIcon('🍣')">🍣</button><button class="ip-em" onclick="pickIcon('🍱')">🍱</button><button class="ip-em" onclick="pickIcon('🍛')">🍛</button><button class="ip-em" onclick="pickIcon('🍝')">🍝</button><button class="ip-em" onclick="pickIcon('🥩')">🥩</button><button class="ip-em" onclick="pickIcon('🦞')">🦞</button><button class="ip-em" onclick="pickIcon('🐟')">🐟</button><button class="ip-em" onclick="pickIcon('🍷')">🍷</button><button class="ip-em" onclick="pickIcon('🍺')">🍺</button><button class="ip-em" onclick="pickIcon('☕')">☕</button><button class="ip-em" onclick="pickIcon('🧋')">🧋</button><button class="ip-em" onclick="pickIcon('🍦')">🍦</button><button class="ip-em" onclick="pickIcon('🎂')">🎂</button><button class="ip-em" onclick="pickIcon('🍰')">🍰</button><button class="ip-em" onclick="pickIcon('🍡')">🍡</button></div>
 </div>
 
 <script>
