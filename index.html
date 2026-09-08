@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>🇯🇵 日本关西之旅 2026.09.30</title>
+<title>11</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -230,10 +230,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 <div id="top-bar">
 <!-- ── HEADER ── -->
 <div class="hdr">
-  <div class="hdr-en" id="hdr-en">KANSAI · WAKAYAMA · KOBE</div>
-  <h1 id="hdr-h1">🇯🇵 日本关西之旅</h1>
+  <div class="hdr-en" id="hdr-en"></div>
+  <h1 id="hdr-h1">11</h1>
   <div class="hdr-meta" id="hdr-meta">
-    <span>📅 9/30 – 10/7</span><span>🗓 8天7夜</span><span>✈️ 吉祥航空</span>
+    <span>📅 9/30 – 10/6</span><span>🗓 7天6夜</span><span>✈️ 吉祥航空</span>
   </div>
 </div>
 
@@ -352,174 +352,118 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;ba
 // DATA
 // ════════════════════════════════════════════════════════
 const DEFAULT = [
-  {date:'2026-09-30',title:'鸭川夜色',emoji:'🌙',sub:'HO1505 · 上海浦东 → 关西 → 京都',cities:['上海','关西机场','京都'],
-   map:{c:[34.98,135.74],z:12,pts:[
-    {lat:34.4347,lng:135.2440,icon:'✈️',lb:'关西机场'},
-    {lat:34.9858,lng:135.7588,icon:'🚄',lb:'京都站'},
-    {lat:35.0036,lng:135.7676,icon:'🏨',lb:'四条河原町'},
-    {lat:35.0042,lng:135.7653,icon:'🛒',lb:'锦市场'},
-    {lat:35.0036,lng:135.7740,icon:'🌊',lb:'鸭川'}]},
-   acts:[
-    {time:'08:20',name:'出发 · 上海浦东T2',note:'HO1505 吉祥航空\n08:20起飞 → 11:40抵达关西',tag:'tr',icon:'✈️'},
-    {time:'14:00',name:'关西机场 → 京都站',note:'JR特急 HARUKA 约80分钟',tag:'tr',icon:'🚄',
-     tt:{title:'特急HARUKA 関西空港→京都',sub:'建议乘13:46或14:16班次，约75分抵京都',segs:[
-       {line:'特急HARUKA',from:'関西空港',to:'京都',dur:'約75分',fare:'2,910円（自由席）',
-        note:'自由席无需预约；指定席旺季务必提前在JR官网购买',planTime:'14:16',
-        deps:['11:16','11:46','12:16','12:46','13:16','13:46','14:16','14:46','15:16','15:46','16:16','16:46']}]}},
-    {time:'15:45',name:'京都站 → 酒店（四条区域）',note:'市巴士 4/17/205 → 四条河原町',tag:'ht',icon:'🏨'},
-    {time:'16:30',name:'酒店 → 锦市场',note:'步行约6分钟 · 京都厨房',tag:'sc',icon:'🛒'},
-    {time:'18:00',name:'晚餐',note:'四条河原町或先斗町一带',tag:'fd',icon:'🍜'},
-    {time:'19:30',name:'鸭川纳凉床 / 鸭川散步',note:'步行1分钟 · 夜晚漫步鸭川河畔',tag:'sc',icon:'🌊'}]},
-
-  {date:'2026-10-01',title:'贵船·鞍马森林徒步',emoji:'🌲',sub:'叡山电铁 · 森林徒步约2.5km',cities:['京都','鞍马','贵船'],
-   map:{c:[35.08,135.77],z:12,pts:[
-    {lat:35.0382,lng:135.7737,icon:'🚃',lb:'出町柳站'},
-    {lat:35.1132,lng:135.7706,icon:'🚋',lb:'鞍马站'},
-    {lat:35.1133,lng:135.7708,icon:'⛩️',lb:'鞍马寺'},
-    {lat:35.1248,lng:135.7681,icon:'🌊',lb:'贵船神社'}]},
-   acts:[
-    {time:'09:30',name:'酒店 → 出町柳站',note:'步行 + 京阪本线',tag:'tr',icon:'🚃',
-     tt:{title:'京阪本线 祇園四条→出町柳',sub:'约5分钟，频率极高',segs:[
-       {line:'京阪本線',from:'祇園四条',to:'出町柳',dur:'約5分',fare:'200円（IC可用）',
-        note:'急行/特急均停，月台在地下，几乎5分一班',planTime:'09:35',
-        deps:['09:00','09:05','09:10','09:15','09:20','09:25','09:30','09:35','09:40','09:45','09:50','09:55','10:00']}]}},
-    {time:'10:00',name:'出町柳 → 鞍马站',note:'叡山电铁鞍马线 · 右侧可见红叶隧道',tag:'tr',icon:'🚋',
-     tt:{title:'叡山電鉄 鞍馬線 出町柳→鞍馬',sub:'约31分，注意右侧红叶隧道',segs:[
-       {line:'叡山電鉄 鞍馬線',from:'出町柳',to:'鞍馬',dur:'約31分',fare:'570円（IC可用）',
-        note:'单节小火车，过市原站后进入红叶隧道，务必坐右侧座位',planTime:'10:00',
-        deps:['08:53','09:23','09:53','10:23','10:53','11:23','11:53','12:23','12:53']}]}},
-    {time:'10:35',name:'鞍马寺',note:'缆车（普明殿→多宝塔）+ 步行参拜',tag:'sc',icon:'⛩️'},
-    {time:'11:35',name:'鞍马 → 贵船 · 森林徒步',note:'约2.5km轻松步道 · 林间溪谷风光',tag:'sc',icon:'🥾'},
-    {time:'13:00',name:'贵船神社 + 水占卜',note:'将签放入溪水中，字迹浮现',tag:'sc',icon:'🌊'},
-    {time:'13:30',name:'贵船川床午餐',note:'溪边料理 · 夏季限定川床',tag:'fd',icon:'🍱'},
-    {time:'16:00',name:'返回酒店休息',note:'原路乘叡山电铁返回',tag:'ht',icon:'🏨'}]},
-
-  {date:'2026-10-02',title:'岚山·竹林·苔庭',emoji:'🎋',sub:'阪急电铁 · 岚山全日游',cities:['岚山','天龙寺','祇王寺'],
-   map:{c:[35.013,135.677],z:14,pts:[
-    {lat:35.0170,lng:135.6727,icon:'🎋',lb:'岚山竹林小径'},
-    {lat:35.0169,lng:135.6750,icon:'⛩️',lb:'天龙寺'},
-    {lat:35.0245,lng:135.6765,icon:'🌿',lb:'祇王寺'},
-    {lat:35.0130,lng:135.6783,icon:'🌉',lb:'渡月桥'}]},
-   acts:[
-    {time:'09:30',name:'酒店 → 岚山',note:'步行→阪急京都河原町站→桂→岚山约25min',tag:'tr',icon:'🚃',
-     tt:{title:'阪急 京都河原町→嵐山',sub:'在桂站换乘嵐山線，全程约25分',segs:[
-       {line:'阪急 京都本線',from:'京都河原町',to:'桂',dur:'約13分',fare:'200円（IC可用）',
-        note:'急行/特急均停桂站，频率极高，约3-5分一班',planTime:'09:40',
-        deps:['09:20','09:25','09:30','09:35','09:40','09:45','09:50','09:55','10:00','10:05','10:10']},
-       {line:'阪急 嵐山線',from:'桂',to:'嵐山',dur:'約9分',fare:'含上段合計200円',
-        note:'桂站换乘后乘嵐山線，约每10分一班；到站后步行15min可至竹林',planTime:'09:58',
-        deps:['09:40','09:50','10:00','10:10','10:20','10:30','10:40','10:50','11:00','11:10']}]}},
-    {time:'10:15',name:'岚山竹林小径',note:'从阪急站步行约15min · 晨光最美',tag:'sc',icon:'🎋'},
-    {time:'11:00',name:'天龙寺庭园',note:'世界遗产 · 曹源池庭园',tag:'sc',icon:'⛩️'},
-    {time:'12:00',name:'岚山午餐',note:'岚山商业街 · 豆腐料理 / 汤豆腐',tag:'fd',icon:'🍣'},
-    {time:'13:30',name:'祇王寺',note:'苔藓庭园 · 步行约15min',tag:'sc',icon:'🌿'},
-    {time:'14:30',name:'渡月桥 · 茶屋休息',note:'眺望保津川 · 岚山标志景观',tag:'sc',icon:'🌉'},
-    {time:'16:00',name:'返回酒店',note:'阪急原路返回京都',tag:'ht',icon:'🏨'}]},
-
-  {date:'2026-10-03',title:'田辺花火大会',emoji:'🎆',sub:'JR特急くろしお · 第56回田辺花火',cities:['京都','田辺','扇ヶ浜'],
-   map:{c:[33.82,135.40],z:9,pts:[
-    {lat:34.9858,lng:135.7588,icon:'🚄',lb:'京都站'},
-    {lat:33.7338,lng:135.3741,icon:'🏨',lb:'田辺市'},
-    {lat:33.7290,lng:135.3821,icon:'🎆',lb:'扇ヶ浜（花火会场）'}]},
-   acts:[
-    {time:'09:30',name:'整理行李 · 宅急便寄送',note:'行李寄到白滨酒店，轻装出发',tag:'tr',icon:'📦'},
-    {time:'11:00',name:'京都自由活动',note:'周边商店 · 伴手礼采购',tag:'sc',icon:'🏙️'},
-    {time:'12:00',name:'京都站便当午餐',note:'购买各类京都特色站便当',tag:'fd',icon:'🍱'},
-    {time:'13:00',name:'京都站 → 田辺站',note:'JR特急 くろしお 约3.5小时',tag:'tr',icon:'🚄',
-     tt:{title:'特急くろしお 京都→紀伊田辺',sub:'班次较少，务必提前预订指定席',segs:[
-       {line:'特急 くろしお',from:'京都',to:'紀伊田辺',dur:'約3時間30分',fare:'6,050円（乗車券4,070円+特急料金1,980円）',
-        note:'⚠️ 班次有限，强烈建议提前在JR西日本官网/みどりの窓口购买指定席；花火日人多，早预订',planTime:'13:05',
-        deps:['09:05','10:05','11:05','12:05','13:05','14:05','15:05']}]}},
-    {time:'16:30',name:'田辺酒店 check-in · 休息',note:'休整后准备花火大会',tag:'ht',icon:'🏨'},
-    {time:'18:30',name:'扇ヶ浜海滩占位',note:'步行前往 · 提前占好观看位置',tag:'sc',icon:'🏖️'},
-    {time:'20:00',name:'第56回 田辺花火大会',note:'扇ヶ浜海滩 · 海上烟花 约20分钟',tag:'fw',icon:'🎆'}]},
-
-  {date:'2026-10-04',title:'白滨溜达',emoji:'🌊',sub:'断崖 · 沙滩 · 温泉',cities:['田辺','白滨','白良浜'],
-   map:{c:[33.686,135.352],z:14,pts:[
-    {lat:33.6849,lng:135.3527,icon:'🪨',lb:'千畳敷'},
-    {lat:33.6822,lng:135.3508,icon:'🏔️',lb:'三段壁'},
-    {lat:33.6924,lng:135.3534,icon:'🏖️',lb:'白良浜'},
-    {lat:33.6850,lng:135.3490,icon:'♨️',lb:'白滨温泉'}]},
-   acts:[
-    {time:'09:30',name:'田辺 → 白滨',note:'约1小时',tag:'tr',icon:'🚌',
-     tt:{title:'JR紀勢本線 紀伊田辺→白浜',sub:'约20分，IC可用',segs:[
-       {line:'JR 紀勢本線',from:'紀伊田辺',to:'白浜',dur:'約20分',fare:'340円（IC可用）',
-        note:'普通·快速均可，班次较充裕；也可乘くろしお特急（+特急料金）更快',planTime:'09:44',
-        deps:['08:55','09:44','10:22','10:55','11:33','12:06','12:53','13:26']}]}},
-    {time:'10:30',name:'千畳敷',note:'海蚀岩盘 · 绵延平坦的岩石群',tag:'sc',icon:'🪨'},
-    {time:'11:30',name:'三段壁',note:'断崖绝壁 · 洞窟探险 · 36m悬崖',tag:'sc',icon:'🏔️'},
-    {time:'12:30',name:'白滨午餐 · 海鲜',note:'新鲜海产 · 海胆·伊势龙虾',tag:'fd',icon:'🦞'},
-    {time:'13:30',name:'白良浜沙滩',note:'白色细沙海滩 · 自由活动',tag:'sc',icon:'🏖️'},
-    {time:'16:00',name:'白滨温泉旅馆 check-in',note:'白浜奇特莱斯希莫尔酒店 · 温泉浴',tag:'ht',icon:'♨️'}]},
-
-  {date:'2026-10-05',title:'和歌山溜达',emoji:'🐟',sub:'金枪鱼解体秀 · 和歌山城',cities:['白滨','黑潮市场','和歌山城'],
-   map:{c:[34.228,135.172],z:13,pts:[
-    {lat:34.2305,lng:135.1765,icon:'🐟',lb:'黑潮市场'},
-    {lat:34.2257,lng:135.1671,icon:'🏯',lb:'和歌山城'}]},
-   acts:[
-    {time:'09:30',name:'白滨 → 和歌山（黑潮市场）',note:'约1.5小时',tag:'tr',icon:'🚌',
-     tt:{title:'白浜→和歌山',sub:'建议乘特急くろしお缩短至50分',segs:[
-       {line:'特急 くろしお（推荐）',from:'白浜',to:'和歌山',dur:'約50分',fare:'2,640円（乗車券960円+特急料金1,680円）',
-        note:'推荐乘特急节省时间；IC乗車券可用，特急券需另购',planTime:'09:44',
-        deps:['07:35','09:44','10:39','11:44','12:44']},
-       {line:'普通/快速（省钱）',from:'白浜',to:'和歌山',dur:'約1時間40分',fare:'960円（IC可用）',
-        note:'省钱选项，班次少，建议查询时刻表后出发',planTime:'09:30',
-        deps:['07:14','09:30','11:15','12:55']}]}},
-    {time:'12:30',name:'黑潮市场 · 金枪鱼解体秀',note:'巨型金枪鱼现场解体 · 每日定时表演',tag:'sc',icon:'🐟'},
-    {time:'13:00',name:'市场内午餐',note:'超新鲜金枪鱼刺身丼',tag:'fd',icon:'🍣'},
-    {time:'14:30',name:'和歌山城',note:'市场→城约30min · 天守阁登顶俯瞰',tag:'sc',icon:'🏯'},
-    {time:'16:00',name:'和歌山市区自由活动',note:'商店街闲逛',tag:'sc',icon:'🛍️'},
-    {time:'18:00',name:'晚餐',note:'和歌山拉面 / 当地料理',tag:'fd',icon:'🍜'}]},
-
-  {date:'2026-10-06',title:'神户溜达',emoji:'🥩',sub:'神户牛 · 异人馆 · 六甲山夜景',cities:['和歌山','神户三宫','六甲山'],
-   map:{c:[34.72,135.20],z:12,pts:[
-    {lat:34.6913,lng:135.1956,icon:'🥩',lb:'神户三宫'},
-    {lat:34.6977,lng:135.1877,icon:'🏘️',lb:'北野异人馆'},
-    {lat:34.6907,lng:135.1896,icon:'🧧',lb:'南京町'},
-    {lat:34.7671,lng:135.2407,icon:'🌃',lb:'六甲山顶'}]},
-   acts:[
-    {time:'09:30',name:'和歌山 → 神户三宫',note:'约2小时',tag:'tr',icon:'🚄',
-     tt:{title:'和歌山→神戸三ノ宮',sub:'经大阪天王寺转乘，全程约2小时',segs:[
-       {line:'JR 阪和線（快速）',from:'和歌山',to:'天王寺（大阪）',dur:'約1時間',fare:'1,100円（IC可用）',
-        note:'在天王寺下车，换乘JR神戸線新快速；或乘くろしお特急直达大阪再转乘',planTime:'09:44',
-        deps:['09:00','09:16','09:30','09:44','10:00','10:16','10:30','10:44','11:00']},
-       {line:'JR 神戸線 新快速',from:'大阪',to:'三ノ宮',dur:'約22分',fare:'含上段合計約1,520円',
-        note:'新快速停三ノ宮，几乎每10分一班；从天王寺换乘时注意月台方向',planTime:'10:48',
-        deps:['10:08','10:18','10:28','10:38','10:48','10:58','11:08','11:18','11:28']}]}},
-    {time:'12:00',name:'神户牛午餐',note:'三宫周边神户牛专门店 · 铁板烧',tag:'fd',icon:'🥩'},
-    {time:'13:30',name:'北野异人馆街',note:'明治时代西洋建筑群 · 风见鸡馆',tag:'sc',icon:'🏘️'},
-    {time:'15:30',name:'元町 · 南京町闲逛',note:'神户中华街 · 肉包子必吃',tag:'sc',icon:'🧧'},
-    {time:'17:30',name:'前往六甲山',note:'阪急六甲站→六甲缆车 约40min',tag:'tr',icon:'🚠'},
-    {time:'18:10',name:'六甲山顶夜景',note:'日本三大夜景 · 神户全景',tag:'sc',icon:'🌃'}]},
-
-  {date:'2026-10-07',title:'大阪购物→回国',emoji:'🛍',sub:'HO1338 · 22:25 关西机场起飞',cities:['神户','大阪','关西机场'],
-   map:{c:[34.55,135.40],z:10,pts:[
-    {lat:34.6913,lng:135.1956,icon:'🚃',lb:'神户三宫'},
-    {lat:34.6726,lng:135.5001,icon:'🛍️',lb:'大阪心斋桥'},
-    {lat:34.6687,lng:135.5015,icon:'🍜',lb:'道顿堀'},
-    {lat:34.4347,lng:135.2440,icon:'✈️',lb:'关西机场'}]},
-   acts:[
-    {time:'09:30',name:'神户三宫 → 大阪',note:'阪急或JR · 约30分钟',tag:'tr',icon:'🚃',
-     tt:{title:'神戸三ノ宮→大阪',sub:'阪急梅田/JR大阪均可，约25-30分',segs:[
-       {line:'阪急 神戸線（推荐）',from:'神戸三宮',to:'梅田（大阪）',dur:'約28分',fare:'320円（IC可用）',
-        note:'推荐阪急，站台直达大阪梅田，购物方便；特急停三宮和梅田',planTime:'09:32',
-        deps:['09:00','09:08','09:16','09:24','09:32','09:40','09:48','09:56','10:04','10:12']},
-       {line:'JR 神戸線 新快速',from:'三ノ宮',to:'大阪',dur:'約22分',fare:'420円（IC可用）',
-        note:'稍快但票价略高；到JR大阪站，离难波/心斋桥还需换乘地铁',planTime:'09:35',
-        deps:['09:05','09:15','09:25','09:35','09:45','09:55','10:05','10:15']}]}},
-    {time:'10:00',name:'大阪购物',note:'心斋桥·道顿堀·难波 · 药妆/零食/伴手礼',tag:'sc',icon:'🛍️'},
-    {time:'14:00',name:'大阪午餐',note:'章鱼烧·大阪烧·串炸 · 道顿堀',tag:'fd',icon:'🍜'},
-    {time:'16:00',name:'取行李 · 最后补货',note:'机场免税店最后扫货',tag:'tr',icon:'📦'},
-    {time:'17:00',name:'大阪 → 关西机场',note:'HARUKA / 南海电铁 约1小时',tag:'tr',icon:'🚄',
-     tt:{title:'大阪→関西空港',sub:'务必预留充足时间，航班22:25起飞',segs:[
-       {line:'特急HARUKA（推荐）',from:'新大阪/大阪',to:'関西空港',dur:'約75分（新大阪から）',fare:'2,910円（自由席）',
-        note:'推荐乘HARUKA到关西空港，行李空间大；大阪站也停；务必17:30前出发',planTime:'17:16',
-        deps:['15:46','16:16','16:46','17:16','17:46','18:16','18:46','19:16']},
-       {line:'南海ラピート（备选）',from:'難波',to:'関西空港',dur:'約38分',fare:'1,450円（IC可用）',
-        note:'从难波出发更快，适合在心斋桥附近购物后直接出发',planTime:'17:30',
-        deps:['16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30']}]}},
-    {time:'18:00',name:'值机安检 · 机场晚餐',note:'关西机场餐厅 · 最后一顿日料',tag:'fd',icon:'🍱'},
-    {time:'22:25',name:'起飞 · 回家',note:'HO1338 吉祥航空\n22:25起飞 → 次日23:40抵沪',tag:'tr',icon:'✈️'}]}
+  {
+    "date": "2026-09-30",
+    "title": "第1天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-01",
+    "title": "第2天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-02",
+    "title": "第3天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-03",
+    "title": "第4天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-04",
+    "title": "第5天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-05",
+    "title": "第6天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  },
+  {
+    "date": "2026-10-06",
+    "title": "第7天",
+    "emoji": "📍",
+    "sub": "",
+    "cities": [],
+    "map": {
+      "c": [
+        35,
+        135
+      ],
+      "z": 12,
+      "pts": []
+    },
+    "acts": []
+  }
 ];
 
 // ── Load / Save ────────────────────────────────────────
@@ -937,57 +881,28 @@ const CL_KEY = 'tripChecklist_v1';
 const CL_ICONS = {'证件':'🪪','交通':'🚄','住宿':'🏨','金钱':'💴','通讯':'📱','行李':'🧳','穿搭':'👗','其他':'📋'};
 
 const DEFAULT_CL = [
-  {id:'证件', cat:'证件', items:[
-    {id:'d1',text:'护照（确认有效期 > 出发日+6个月）',done:false},
-    {id:'d2',text:'日本签证（贴纸或电子）',done:false},
-    {id:'d3',text:'身份证（国内备用）',done:false},
-    {id:'d4',text:'紧急联系人信息卡',done:false},
-  ]},
-  {id:'交通', cat:'交通', items:[
-    {id:'t1',text:'HO1505 机票确认单截图（9/30 08:20）',done:false},
-    {id:'t2',text:'HO1338 回程机票确认单（10/7 22:25）',done:false},
-    {id:'t3',text:'特急くろしお 10/3 13:05 指定席购买',done:false},
-    {id:'t4',text:'ICOCA/Suica 购买并充值',done:false},
-    {id:'t5',text:'关西机场→京都 HARUKA（自由席可直接乘）',done:false},
-  ]},
-  {id:'住宿', cat:'住宿', items:[
-    {id:'h1',text:'京都酒店（四条区域）确认单',done:false},
-    {id:'h2',text:'田辺酒店确认单',done:false},
-    {id:'h3',text:'白滨 奇特莱斯希莫尔 确认单',done:false},
-    {id:'h4',text:'和歌山/神户酒店确认单',done:false},
-    {id:'h5',text:'各酒店日文地址截图（打车备用）',done:false},
-    {id:'h6',text:'宅急便地址（白滨酒店日文地址）',done:false},
-  ]},
-  {id:'金钱', cat:'金钱', items:[
-    {id:'m1',text:'兑换日元（建议≥5万円现金）',done:false},
-    {id:'m2',text:'通知银行信用卡出境使用',done:false},
-    {id:'m3',text:'确认支付宝/微信海外支付开通',done:false},
-  ]},
-  {id:'通讯', cat:'通讯', items:[
-    {id:'c1',text:'日本SIM卡/随身WiFi预订',done:false},
-    {id:'c2',text:'下载 Google Maps 离线地图（关西地区）',done:false},
-    {id:'c3',text:'下载 Yahoo!乗換案内',done:false},
-    {id:'c4',text:'下载翻译APP（百度/DeepL）',done:false},
-    {id:'c5',text:'下载 Google翻译并离线下载日语包',done:false},
-  ]},
-  {id:'行李', cat:'行李', items:[
-    {id:'l1',text:'行李箱尺寸确认（吉祥航空托运限制）',done:false},
-    {id:'l2',text:'充电宝 ≤20000mAh（不可托运）随身携带',done:false},
-    {id:'l3',text:'随身液体 <100ml/瓶，装入透明袋',done:false},
-    {id:'l4',text:'备用购物袋（日本购物用）',done:false},
-    {id:'l5',text:'雨伞/折叠伞',done:false},
-  ]},
-  {id:'穿搭', cat:'穿搭', items:[
-    {id:'w1',text:'田辺花火大会服装（10/3）',done:false},
-    {id:'w2',text:'贵船/鞍马徒步鞋（10/1）',done:false},
-    {id:'w3',text:'白滨沙滩装备（10/4）',done:false},
-    {id:'w4',text:'六甲山夜景外套（夜晚凉，10/6）',done:false},
-  ]},
-  {id:'其他', cat:'其他', items:[
-    {id:'o1',text:'旅行保险购买确认',done:false},
-    {id:'o2',text:'手机备份完成',done:false},
-    {id:'o3',text:'行前检查本页面分享给同行伙伴',done:false},
-  ]},
+  {
+    "id": "证件",
+    "cat": "证件",
+    "items": [
+      {
+        "id": "i0",
+        "text": "护照（有效期 > 出发+6个月）",
+        "done": false
+      }
+    ]
+  },
+  {
+    "id": "交通",
+    "cat": "交通",
+    "items": [
+      {
+        "id": "i0",
+        "text": "机票确认单截图",
+        "done": false
+      }
+    ]
+  }
 ];
 
 let clData = JSON.parse(localStorage.getItem(CL_KEY)||'null') || JSON.parse(JSON.stringify(DEFAULT_CL));
