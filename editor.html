@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>TripGoGo 编辑器</title>
@@ -192,12 +191,12 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
 <nav class="nav">
   <div class="nav-logo">Trip<em>Go</em>Go <span class="nav-pill">编辑器</span></div>
   <span class="save-ind" id="save-ind">已保存</span>
-  <span class="sdot idle" id="sdot"></span>
+  <span class="sdot ok" id="sdot"></span>
   <button class="nbtn ghost" onclick="openDeployModal()">🚀 部署</button>
   <button class="nbtn ghost" onclick="openGHModal()">⚙️ 云同步</button>
-  <button class="nbtn ghost" id="prev-btn" onclick="previewTrip()" disabled>👁 预览</button>
-  <button class="nbtn ghost" id="exp-btn" onclick="exportTrip()" disabled>📥 导出</button>
-  <button class="nbtn red" id="save-btn" onclick="saveTrip()" disabled>💾 保存</button>
+  <button class="nbtn ghost" id="prev-btn" onclick="previewTrip()">👁 预览</button>
+  <button class="nbtn ghost" id="exp-btn" onclick="exportTrip()">📥 导出</button>
+  <button class="nbtn red" id="save-btn" onclick="saveTrip()">💾 保存</button>
 </nav>
 
 <div class="layout">
@@ -208,25 +207,67 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
       <button class="sb-new" onclick="newTripModal()" title="新建">+</button>
     </div>
     <div class="trip-list" id="trip-list">
-      <div class="loading-p"><span class="spin"></span> 加载中...</div>
+    <div class="ti on" onclick="loadTrip('11-cx4k')">
+      <div style="flex:1;min-width:0">
+        <div class="ti-name">11</div>
+        <div class="ti-dates">9/30 – 10/6</div>
+      </div>
+      <span class="ti-del" onclick="event.stopPropagation();delTrip('11-cx4k')" title="删除">🗑</span>
     </div>
+    <div class="ti " onclick="loadTrip('test11-m75u')">
+      <div style="flex:1;min-width:0">
+        <div class="ti-name">test11</div>
+        <div class="ti-dates">9/30 – 10/7</div>
+      </div>
+      <span class="ti-del" onclick="event.stopPropagation();delTrip('test11-m75u')" title="删除">🗑</span>
+    </div></div>
   </aside>
 
   <!-- Main panel -->
   <main class="main">
-    <div class="main-tabs" id="main-tabs" style="display:none">
+    <div class="main-tabs" id="main-tabs" style="display: flex;">
       <div class="mtab on" onclick="switchTab('meta')" data-t="meta">基本信息</div>
       <div class="mtab" onclick="switchTab('days')" data-t="days">行程详情</div>
       <div class="mtab" onclick="switchTab('cl')" data-t="cl">行前清单</div>
     </div>
     <div class="mc" id="mc">
-      <div class="es">
-        <div class="es-ic">✈️</div>
-        <h3>欢迎使用攻略编辑器</h3>
-        <p>从左侧选择攻略开始编辑<br>或点击 + 新建</p>
-        <button class="es-btn" onclick="newTripModal()">+ 新建攻略</button>
-      </div>
+<div class="sec">
+  <div class="sec-title">基本信息</div>
+  <div class="fr">
+    <div class="fg" style="min-width:200px">
+      <div class="lbl">行程名称 *</div>
+      <input class="fi" value="11" oninput="updMeta('name',this.value)">
     </div>
+  </div>
+  <div class="fr">
+    <div class="fg">
+      <div class="lbl">英文副标题</div>
+      <input class="fi" value="" placeholder="OSAKA · KYOTO · KOBE" oninput="updMeta('en_subtitle',this.value)">
+    </div>
+  </div>
+  <div class="fr">
+    <div class="fg" style="min-width:110px">
+      <div class="lbl">日期区间</div>
+      <input class="fi" value="9/30 – 10/6" placeholder="9/30 – 10/7" oninput="updMeta('date_range',this.value)">
+    </div>
+    <div class="fg" style="min-width:90px">
+      <div class="lbl">天数/夜数</div>
+      <input class="fi" value="7天6夜" placeholder="8天7夜" oninput="updMeta('nights',this.value)">
+    </div>
+    <div class="fg" style="min-width:90px">
+      <div class="lbl">航空公司</div>
+      <input class="fi" value="" placeholder="吉祥航空" oninput="updMeta('airline',this.value)">
+    </div>
+  </div>
+</div>
+<div class="hint">
+  <div class="hint-title">💡 使用说明</div>
+  <p>1. 在<b>基本信息</b>填写行程名称、日期等概要<br>
+  2. 在<b>行程详情</b>添加每日活动；每个活动可填写"地图标注名称"，然后点"自动获取坐标"<br>
+  3. 在<b>行前清单</b>管理出发前要准备的事项<br>
+  4. 点击 <b>💾 保存</b> 提交至 GitHub，点击 <b>👁 预览</b> 查看展示效果<br>
+  5. 点击 <b>📥 导出</b> 下载独立 HTML（无需 GitHub 也可分享）</p>
+</div></div>
   </main>
 </div>
 
@@ -314,22 +355,22 @@ textarea.fi{resize:vertical;min-height:54px;line-height:1.5}
 <div id="toast"></div>
 
 <!-- Deploy Modal -->
-<div class="mo" id="deploy-mo">
+<div class="mo show" id="deploy-mo">
   <div class="mb">
     <h3>🚀 部署到 GitHub Pages</h3>
     <div class="mb-sub">将 index.html / editor.html 上传到 GitHub，不存在的仓库将自动创建并开启 Pages</div>
     <div class="mb-fg">
       <div class="mb-lbl">GitHub 用户名</div>
-      <input class="fi" id="dep-owner" readonly style="background:#f5f5f5;color:#999">
+      <input class="fi" id="dep-owner" readonly="" style="background:#f5f5f5;color:#999">
     </div>
     <div class="mb-fg">
       <div class="mb-lbl">仓库名称 <span style="font-weight:400;color:#bbb">（不存在则自动创建公开仓库）</span></div>
       <input class="fi" id="dep-repo" placeholder="例: tripgogo_test" autocomplete="off">
     </div>
-    <div class="mo-msg" id="dep-msg" style="line-height:1.6"></div>
+    <div class="mo-msg" id="dep-msg" style="line-height: 1.6; display: block;">⏳ 检查仓库...</div>
     <div class="ma">
       <button class="mbtn cancel" onclick="closeDeployModal()">关闭</button>
-      <button class="mbtn ok" id="dep-btn" onclick="confirmDeploy()">开始部署</button>
+      <button class="mbtn ok" id="dep-btn" onclick="confirmDeploy()" disabled="">部署中...</button>
     </div>
   </div>
 </div>
@@ -515,38 +556,40 @@ async function confirmDeploy(){
       await new Promise(res=>setTimeout(res,2500));
     }
 
-    // ── 2. 读取 index.html / editor.html ────────────────
-    _depMsg('','⏳ 读取文件...');
-    const needed=['index.html','editor.html'];
-    const contents={};
-    for(const f of needed){
-      try{ const fr=await fetch('./'+f,{cache:'no-store'}); if(fr.ok) contents[f]=await fr.text(); }
-      catch(e){}
-    }
-    const missing=needed.filter(f=>!contents[f]);
-    if(missing.length){
-      _depMsg('','⚠️ 无法自动读取文件，请在弹出框中选择: <b>'+missing.join(' 和 ')+'</b>');
-      await new Promise((resolve,reject)=>{
+    // ── 2a. editor.html：直接从当前 DOM 读取，无需选文件 ──
+    const editorHtml='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+
+    // ── 2b. index.html：先尝试 fetch，本地则弹框只选它 ──
+    _depMsg('','⏳ 读取 index.html...');
+    let indexHtml='';
+    try{
+      const fr=await fetch('./index.html',{cache:'no-store'});
+      if(fr.ok) indexHtml=await fr.text();
+    }catch(e){}
+
+    if(!indexHtml){
+      _depMsg('','📂 请在弹出框中选择本地的 <b>index.html</b>（只需这一个文件）');
+      indexHtml=await new Promise((resolve,reject)=>{
         const inp=document.createElement('input');
-        inp.type='file';inp.accept='.html';inp.multiple=true;inp.style.display='none';
+        inp.type='file';inp.accept='.html';inp.style.display='none';
         document.body.appendChild(inp);
         inp.onchange=async ev=>{
           document.body.removeChild(inp);
-          if(!ev.target.files.length){reject(new Error('未选择文件'));return;}
-          for(const file of ev.target.files) contents[file.name]=await file.text();
-          resolve();
+          const file=ev.target.files[0];
+          if(!file){reject(new Error('未选择 index.html'));return;}
+          if(file.name!=='index.html') toast('⚠️ 文件名不是 index.html，请确认');
+          resolve(await file.text());
         };
         inp.click();
       });
     }
 
-    // ── 3. 上传文件 ──────────────────────────────────────
-    for(const fname of needed){
-      if(!contents[fname]) continue;
+    // ── 3. 上传两个文件 ──────────────────────────────────
+    for(const [fname,text] of [['index.html',indexHtml],['editor.html',editorHtml]]){
       _depMsg('','⏳ 上传 <b>'+fname+'</b>...');
       const ex=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${fname}`,{headers:hd});
       const sha=ex.ok?(await ex.json()).sha:undefined;
-      await _ghPutTo(owner,repo,token,fname,contents[fname],sha);
+      await _ghPutTo(owner,repo,token,fname,text,sha);
     }
 
     // ── 4. 启用 GitHub Pages（已启用则忽略） ─────────────
@@ -1423,5 +1466,6 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 if(ghCfg()) sdot('ok');
 loadIndex();
 </script>
-</body>
-</html>
+
+
+</body></html>
